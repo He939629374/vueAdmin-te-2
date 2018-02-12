@@ -73,18 +73,18 @@ export default {
       }
     },
     handleLogin() {
-      // axios.get('http://localhost:3000/',{
-      //   params: {
-      //     ID: 12345
-      //   }
-      // })
-      //   .then(function(response) {
-      //     console.log(response)
-      //     // self.list = response.data.items
-      //     // self.listLoading = false
-      //   }).catch(function(error) {
-      //       console.log(error)
-      //     })
+      axios.get('http://localhost:3000/getSyncData',{
+        params: {
+          ID: 12345
+        }
+      })
+        .then(function(response) {
+          console.log(response)
+          // self.list = response.data.items
+          // self.listLoading = false
+        }).catch(function(error) {
+            console.log(error)
+          })
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true

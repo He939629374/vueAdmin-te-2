@@ -21,7 +21,7 @@
       <el-checkbox class="filter-item" style='margin-left:15px;' @change='tableKey=tableKey+1' v-model="showReviewer">审核人</el-checkbox>
     </div>
 
-    <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+    <el-table :key='tablekey' :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
           {{scope.$index+1}}
@@ -35,7 +35,7 @@
       </el-table-column>
       <el-table-column label="任务名" min-width="150px">
         <template slot-scope="scope">
-          {{scope.row.title}}
+          <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.title}}</span>
         </template>
       </el-table-column>
       <el-table-column label="处理人" width="110" align="center">
@@ -53,7 +53,7 @@
           <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="220">
+      <el-table-column align="center" label="操作" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button size="mini"  type="primary"  @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
           <el-button v-if="scope.row.status !='published'"  size="mini"  type="success"  @click="handleModifyStatus(scope.row,'published')">发布</el-button>
@@ -65,7 +65,7 @@
    <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
-      </el-pagination>
+   </el-pagination>
     </div>
 <el-dialog title="详情" :visible.sync="dialogTableVisible">
   <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
@@ -74,7 +74,7 @@
     </el-form-item>
     <el-form-item label="处理人">
       <el-input v-model="temp.author" placeholder="请填写处理人"></el-input>
-    </el-form-item>
+</el-form-item>
     <el-form-item label="考察点">
       <el-select v-model="temp.pageviews" placeholder="请选择考察点">
         <el-option v-for="item in  statusOptions" :key="item" :label="item" :value="item">
@@ -94,8 +94,8 @@
   </el-form>
   <div slot="footer" class="dialog-footer">
         <el-button @click="dialogTableVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
-        <el-button v-else type="primary" @click="updateData">确定2</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">新增</el-button>
+        <el-button v-else type="primary" @click="updateData">确定</el-button>
   </div>
 </el-dialog>
   </div>
@@ -104,9 +104,11 @@
 <script>
 // import { getList } from '@/api/table'
 import axios from 'axios'
+
 export default {
   data() {
     return {
+      tableKey: 0,
       temp: {
         // id: undefined,
         // importance: 1,
@@ -114,7 +116,6 @@ export default {
         // remark: '',
         pageviews: '',
         display_time: '',
-        // timestamp: new Date(),
         title: '',
         // type: '',
         status: ''
@@ -132,7 +133,7 @@ export default {
       dialogStatus: '',
       list: null,
       listLoading: true,
-      total:10
+      total: null
     }
   },
   filters: {
@@ -149,14 +150,33 @@ export default {
     this.fetchData()
   },
   methods: {
-    getList() {
+    fetchData() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        console.log(response.data)
-        this.list = response.data.items
-        this.total = response.data.total
-        this.listLoading = false
+      var self = this
+      axios({
+        method: 'get',
+        url: 'https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list2',
+        params: {
+          limit: '10'
+        }
       })
+        .then(function(response) {
+          console.log(response.data.items.length)
+          self.total = response.data.items.length
+          self.list = response.data.items
+          self.listLoading = false
+        }).catch(function(error) {
+          console.log(error)
+        })
+      //  axios.get('https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list2')
+        .then(function(response) {
+          console.log(response.data.items.length)
+          self.total = response.data.items.length
+          self.list = response.data.items
+          self.listLoading = false
+        }).catch(function(error) {
+          console.log(error)
+        })
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -196,18 +216,16 @@ export default {
     handleEdit(index, row) {
       console.log(row)
       this.temp = Object.assign({}, row) // copy obj
-      // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogTableVisible = true
       this.dialogStatus = 'updata'
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
-    },
+    }
     // updateData() {
     //   this.$refs['dataForm'].validate((valid) => {
     //     if (valid) {
     //       const tempData = Object.assign({}, this.temp)
-    //       tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
     //       updateArticle(tempData).then(() => {
     //         for (const v of this.list) {
     //           if (v.id === this.temp.id) {
@@ -227,19 +245,6 @@ export default {
     //     }
     //   })
     // },
-    fetchData() {
-      this.listLoading = true
-      var self = this
-      axios.get('https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list')
-        .then(function(response) {
-          console.log(response.data.items.length)
-          self.total = response.data.items.length
-          self.list = response.data.items
-          self.listLoading = false
-        }).catch(function(error) {
-          console.log(error)
-        })
-    }
   }
 }
 </script>
