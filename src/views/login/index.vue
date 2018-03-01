@@ -73,32 +73,47 @@ export default {
       }
     },
     handleLogin() {
-      axios.get('http://localhost:3000/getSyncData',{
-        params: {
-          ID: 12345
-        }
+      var self = this
+      var name = this.loginForm.username
+      var psd = this.loginForm.password
+      axios.get('http://localhost:3000/query?name=' + name + '&password=' + psd, {
+
       })
         .then(function(response) {
+          self.loading = true
           console.log(response)
-          // self.list = response.data.items
-          // self.listLoading = false
+          if (response.data === 200) {
+            self.$store.dispatch('Login', self.loginForm).then(() => {
+              self.loading = false
+              self.$router.push({ path: '/' })
+            }).catch(() => {
+              self.loading = false
+            })
+          } else {
+            console.log('error submit!!')
+            alert('账号或密码错误')
+            self.loading = false
+            return false
+          }
+        // self.list = response.data.items
+        // self.listLoading = false
         }).catch(function(error) {
-            console.log(error)
-          })
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: '/' })
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
+          console.log(error)
+        })
+      // this.$refs.loginForm.validate(valid => {
+      //   if (valid) {
+      //     this.loading = true
+      //     this.$store.dispatch('Login', this.loginForm).then(() => {
+      //       this.loading = false
+      //       this.$router.push({ path: '/' })
+      //     }).catch(() => {
+      //       this.loading = false
+      //     })
+      //   } else {
+      //     console.log('error submit!!')
+      //     return false
+      //   }
+      // })
     }
   }
 }

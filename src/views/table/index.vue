@@ -77,7 +77,7 @@
 </el-form-item>
     <el-form-item label="考察点">
       <el-select v-model="temp.pageviews" placeholder="请选择考察点">
-        <el-option v-for="item in  statusOptions" :key="item" :label="item" :value="item">
+        <el-option v-for="item in  pageviewsOptions" :key="item" :label="item" :value="item">
         </el-option>
       </el-select>
     </el-form-item>
@@ -113,11 +113,9 @@ export default {
         // id: undefined,
         // importance: 1,
         author: '',
-        // remark: '',
         pageviews: '',
         display_time: '',
         title: '',
-        // type: '',
         status: ''
       },
       listQuery: {
@@ -128,6 +126,7 @@ export default {
         type: 3,
         sort: '+id'
       },
+      pageviewsOptions: ['南海', '禅城', '顺德'],
       statusOptions: ['published', 'draft', 'deleted'],
       dialogTableVisible: false,
       dialogStatus: '',
@@ -153,27 +152,28 @@ export default {
     fetchData() {
       this.listLoading = true
       var self = this
-      axios({
-        method: 'get',
-        url: 'https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list2',
-        params: {
-          limit: '10'
-        }
-      })
+
+      // axios.get('https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list2')
+      //axios.get('http://127.0.0.1:3000/list')
+      axios.post('http://127.0.0.1:3000/uplist',{
+        // author: self.temp.author,
+        // pageviews: self.temp.pageviews,
+        // display_time: self.temp.display_time,
+        // title: self.temp.title,
+        // status: self.temp.status
+        author: '2',
+        pageviews: 'self.temp.pageviews',
+        display_time: '2006-06-03 11:25:11',
+        title: 'self.temp.title',
+        status: 'self.temp.status',
+        id:'6'
+      },{ headers: {'content-type': 'application/x-www-form-urlencoded'}})
         .then(function(response) {
-          console.log(response.data.items.length)
-          self.total = response.data.items.length
-          self.list = response.data.items
+          console.log(response.data.length)
+          console.log(response.data[0])
+          self.list = response.data
           self.listLoading = false
-        }).catch(function(error) {
-          console.log(error)
-        })
-      //  axios.get('https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list2')
-        .then(function(response) {
-          console.log(response.data.items.length)
-          self.total = response.data.items.length
-          self.list = response.data.items
-          self.listLoading = false
+          self.total = response.data.length
         }).catch(function(error) {
           console.log(error)
         })
@@ -221,7 +221,31 @@ export default {
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
-    }
+    },
+    updateData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          axios.get('http://127.0.0.1:3000/uplist')
+            .then(function(response) {
+              console.log(response.data.length)
+              console.log(response.data[0])
+              self.list = response.data
+              self.listLoading = false
+              self.total = response.data.length
+            }).catch(function(error) {
+              console.log(error)
+            })
+
+            this.dialogTableVisible = false
+            this.$notify({
+              title: '成功',
+              message: '更新成功',
+              type: 'success',
+              duration: 2000
+            })
+        }
+      })
+    },
     // updateData() {
     //   this.$refs['dataForm'].validate((valid) => {
     //     if (valid) {
