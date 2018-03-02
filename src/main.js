@@ -12,11 +12,12 @@ import App from './App'
 import router from './router'
 import store from './store'
 
+import Moment from 'moment'
 import '@/icons' // icon
 import '@/permission' // permission control
 
 Vue.use(ElementUI, { locale })
-
+Vue.prototype.moment = Moment
 Vue.config.productionTip = false
 
 new Vue({

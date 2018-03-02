@@ -15,13 +15,11 @@
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key">
         </el-option>
       </el-select>
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
+      <el-button class="filter-item" type="primary"  icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">添加</el-button>
-      <el-button class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">导出</el-button>
-      <el-checkbox class="filter-item" style='margin-left:15px;' @change='tableKey=tableKey+1' v-model="showReviewer">审核人</el-checkbox>
     </div>
 
-    <el-table :key='tablekey' :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+    <el-table  :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
           {{scope.$index+1}}
@@ -88,7 +86,7 @@
       </el-select>
     </el-form-item>
     <el-form-item label="开始时间">
-      <el-date-picker v-model="temp.display_time" type="datetime" placeholder="请选择开始时间">
+      <el-date-picker v-model="temp.display_time" type="date" placeholder="请选择开始时间">
       </el-date-picker>
     </el-form-item>
   </el-form>
@@ -108,10 +106,10 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      tableKey: 0,
       temp: {
         // id: undefined,
         // importance: 1,
+        ID: '',
         author: '',
         pageviews: '',
         display_time: '',
@@ -126,6 +124,9 @@ export default {
         type: 3,
         sort: '+id'
       },
+      importanceOptions: {},
+      calendarTypeOptions: {},
+      sortOptions: {},
       pageviewsOptions: ['南海', '禅城', '顺德'],
       statusOptions: ['published', 'draft', 'deleted'],
       dialogTableVisible: false,
@@ -152,23 +153,9 @@ export default {
     fetchData() {
       this.listLoading = true
       var self = this
-
-      // axios.get('https://easy-mock.com/mock/5a77d8ca2b34a719baf5768f/example/list2')
-      //axios.get('http://127.0.0.1:3000/list')
-      axios.post('http://127.0.0.1:3000/uplist',{
-        // author: self.temp.author,
-        // pageviews: self.temp.pageviews,
-        // display_time: self.temp.display_time,
-        // title: self.temp.title,
-        // status: self.temp.status
-        author: '2',
-        pageviews: 'self.temp.pageviews',
-        display_time: '2006-06-03 11:25:11',
-        title: 'self.temp.title',
-        status: 'self.temp.status',
-        id:'6'
-      },{ headers: {'content-type': 'application/x-www-form-urlencoded'}})
+      axios.get('http://127.0.0.1:3000/list')
         .then(function(response) {
+          console.log(response.data[1].ID)
           console.log(response.data.length)
           console.log(response.data[0])
           self.list = response.data
@@ -224,8 +211,20 @@ export default {
     },
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
+        this.dialogTableVisible = true
+        var self = this
         if (valid) {
-          axios.get('http://127.0.0.1:3000/uplist')
+          const tempData = Object.assign({}, this.temp) // 复制当前所选内容
+          const DTime = self.moment(tempData.display_time).format('YYYY-MM-DD') // 处理日期格式
+          var qs = require('qs') // 处理post内容格式
+          axios.post('http://127.0.0.1:3000/uplist', qs.stringify({
+            author: tempData.author,
+            pageviews: tempData.pageviews,
+            display_time: DTime,
+            title: tempData.title,
+            status: tempData.status,
+            id: tempData.ID
+          }), { headers: { 'content-type': 'application/x-www-form-urlencoded' }})
             .then(function(response) {
               console.log(response.data.length)
               console.log(response.data[0])
@@ -235,17 +234,16 @@ export default {
             }).catch(function(error) {
               console.log(error)
             })
-
-            this.dialogTableVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
+          this.dialogTableVisible = false // loading层关闭
+          this.$notify({
+            title: '成功',
+            message: '更新成功',
+            type: 'success',
+            duration: 2000
+          })
         }
       })
-    },
+    }
     // updateData() {
     //   this.$refs['dataForm'].validate((valid) => {
     //     if (valid) {
