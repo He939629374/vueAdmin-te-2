@@ -38,16 +38,10 @@ let query = function(sql, args) {
     }).then(result => 
       {
         date = JSON.stringify(result)
-		//var a = JSON.parse(date)
-		//var a = eval("(" + date+ ")")
-		// console.log('stringify:'+date)
-		// console.log('eval:'+a[0].password)
-		// console.log('result:'+result[0].password)
         return (date)       
       } )
 }
 async function selectAllData(que ) {
-  //let sql = 'SELECT * FROM login'
   let sql = 'SELECT password FROM login where user_name = ' +'"'+que+'"'
   let dataList = await query( sql )
   console.log('selectAllData:' + dataList )
@@ -72,9 +66,39 @@ async function selectAllList( ) {
 async function getList() {
   let dataList = await selectAllList()
   //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+  return (dataList)
+}
+
+//新增列表
+async function AddList(field) {
+  let sql = 'INSERT INTO list ( author, display_time,title,pageviews,status ) VALUES '+" ( '" +
+  field.author + "','"+ field.display_time + "','" +field.title + "','" + field.pageviews + "','" +field.status +"' )"
+  console.log('sql:' + sql )
+  let dataList = await query( sql )
+  //console.log('selectAllData:' + dataList )
+  return dataList
+}
+async function addList(que) {
+  let dataList = await AddList(que)
+  //var a = JSON.parse(dataList)
   console.log('result:'+dataList)
   return (dataList)
+}
 
+//删除列表
+async function DelList(field) {
+  let sql = "DELETE FROM list WHERE ID='" + field.id + "'" 
+  console.log('sql:' + sql )
+  let dataList = await query( sql )
+  //console.log('selectAllData:' + dataList )
+  return dataList
+}
+async function delList(que) {
+  let dataList = await DelList(que)
+  //var a = JSON.parse(dataList)
+  console.log('result:'+dataList)
+  return (dataList)
 }
 
 //更新列表
@@ -84,17 +108,15 @@ async function selectList(field) {
   ',title=' + "'" + field.title + "'" +
   ',pageviews=' + "'" + field.pageviews + "'" +
   ',status=' +"'" + field.status + "'" +' where id=' +"'" + field.id +"'" 
-  // let sql = 'UPDATE list SET author={str0},display_time={str1},title={str2},pageviews={str3},status={str4} WHERE ID={str5}'.format(
-  // {str0:field.author,str1:field.display_time,str2:field.title,str3:field.pageviews,str4:field.status,str5:field.id});
-  console.log('sql:' + sql )
+  //console.log('sql:' + sql )
   let dataList = await query( sql )
-  console.log('selectAllData:' + dataList )
+  //console.log('selectAllData:' + dataList )
   return dataList
 }
 async function upList(que) {
   let dataList = await selectList(que)
   //var a = JSON.parse(dataList)
-  console.log('result:'+dataList)
+  //console.log('result:'+dataList)
   return (dataList)
 
 }
@@ -112,6 +134,14 @@ router
   .post('/uplist',async (ctx,next) => {
   console.log(ctx.request.body)
   ctx.body = await upList(ctx.request.body)
+})
+  .post('/addlist',async (ctx,next) => {
+  console.log(ctx.request.body)
+  ctx.body = await addList(ctx.request.body)
+})
+  .post('/delList',async (ctx,next) => {
+  console.log(ctx.request.body)
+  ctx.body = await delList(ctx.request.body)
 })
 
 app.use(router.routes()).use(router.allowedMethods());

@@ -17,11 +17,14 @@
       </el-select>
       <el-button class="filter-item" type="primary"  icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">添加</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" @click="handleDelay" type="primary" icon="el-icon-edit">删除</el-button>
     </div>
 
-    <el-table  :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
-      <el-table-column align="center" label='ID' width="95">
-        <template slot-scope="scope">
+    <el-table  :data="list" v-loading.body="listLoading" element-loading-text="Loading"  
+    border fit highlight-current-row
+     @current-change="handleCurrentChange1"  >
+      <el-table-column align="center" label='ID' width="95" >
+        <template slot-scope="scope" >
           {{scope.$index+1}}
         </template>
       </el-table-column>
@@ -33,7 +36,7 @@
       </el-table-column>
       <el-table-column label="任务名" min-width="150px">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.title}}</span>
+          <span class="link-type" @click="handleEdit(scope.$index,scope.row)">{{scope.row.title}}</span>
         </template>
       </el-table-column>
       <el-table-column label="处理人" width="110" align="center">
@@ -102,7 +105,7 @@
 <script>
 // import { getList } from '@/api/table'
 import axios from 'axios'
-
+const ValID = ''
 export default {
   data() {
     return {
@@ -183,13 +186,85 @@ export default {
       this.listQuery.page = val
       this.fetchData()
     },
+    handleCurrentChange1(val) {
+      this.ValID = val.ID
+      console.log(this.ValID)
+    },
+    resetTemp() {
+      this.temp = {
+        ID: '',
+        author: undefined,
+        pageviews: '南海',
+        display_time: new Date(),
+        title: '',
+        status: 'published'
+      }
+    },
     handleCreate() {
-      // this.resetTemp()
+      this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogTableVisible = true
-      // this.$nextTick(() => {
-      //   this.$refs['dataForm'].clearValidate()
-      // })
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    handleDelay() {
+      // this.dialogTableVisible = true
+      this.DelayData()
+    },
+    DelayData() {
+      var self = this
+      var qs = require('qs') // 处理post内容格式
+      alert(self.ValID)
+      axios.post('http://127.0.0.1:3000/delList', qs.stringify({
+        id: self.ValID
+      }))
+        .then(function(response) {
+          console.log(response.data[0])
+          self.fetchData()
+          self.listLoading = false
+        }).catch(function(error) {
+          console.log(error)
+        })
+      this.dialogTableVisible = false // loading层关闭
+      this.$notify({
+        title: '成功',
+        message: '删除成功',
+        type: 'success',
+        duration: 2000
+      })
+    },
+    createData() {
+      this.$refs['dataForm'].validate((valid) => {
+        var self = this
+        if (valid) {
+          const tempData = Object.assign({}, this.temp) // 复制当前所选内容
+          const DTime = self.moment(tempData.display_time).format('YYYY-MM-DD') // 处理日期格式
+          var qs = require('qs') // 处理post内容格式
+          axios.post('http://127.0.0.1:3000/addlist', qs.stringify({
+            author: tempData.author,
+            pageviews: tempData.pageviews,
+            display_time: DTime,
+            title: tempData.title,
+            status: tempData.status,
+            id: tempData.ID
+          }))
+            .then(function(response) {
+              console.log(response.data[0])
+              self.dialogTableVisible = false // 关闭新增页面
+              self.fetchData()
+              self.listLoading = false
+            }).catch(function(error) {
+              console.log(error)
+            })
+          this.$notify({
+            title: '成功',
+            message: '新增成功',
+            type: 'success',
+            duration: 2000
+          })
+        }
+      })
     },
     handleModifyStatus(row, status) {
       console.log(row.status)
@@ -201,7 +276,7 @@ export default {
       row.status = status
     },
     handleEdit(index, row) {
-      console.log(row)
+      console.log(row.ID)
       this.temp = Object.assign({}, row) // copy obj
       this.dialogTableVisible = true
       this.dialogStatus = 'updata'
@@ -226,11 +301,9 @@ export default {
             id: tempData.ID
           }), { headers: { 'content-type': 'application/x-www-form-urlencoded' }})
             .then(function(response) {
-              console.log(response.data.length)
               console.log(response.data[0])
-              self.list = response.data
+              self.fetchData()
               self.listLoading = false
-              self.total = response.data.length
             }).catch(function(error) {
               console.log(error)
             })
