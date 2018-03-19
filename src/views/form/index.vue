@@ -1,17 +1,19 @@
 <template>
     <div class="app-container " style="width:60%">
       <el-form ref="form1" :model="form" label-width="80px" >
-        <el-form-item label="头像上传" >
+        <!-- <el-form-item label="头像上传" >
           <el-upload
           class="avatar-uploader"
           action="D:\迅雷下载"
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload">
-            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+            <img  v-if="imageUrl" :src="imageUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
-        </el-form-item>
+        </el-form-item> -->
+         <img  v-if="imageUrl" :src="form.imageUrl"  class="avatar-uploader" style="width:200px;height:200px" >
+         <input type="file" @change="changeImage($event)" ref="avatarInput" >
       </el-form>        
       <el-form ref="form2" label-width="80px" :inline="true" :model="form" class="demo-form-inline">
         <el-form-item label="账号" prop="account">
@@ -54,7 +56,7 @@
     </div>
 </template>
 <style>
-.avatar-uploader .el-upload {
+.avatar-uploader .el-upload,img {
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
     cursor: pointer;
@@ -96,13 +98,33 @@
           desc: '',
           phone: '',
           mailbox: '',
-          imageUrl: ''
+          imageUrl: '',
+          asd: '1',
+          imageUrl1: 'false'
         }
       }
     },
+    created() {
+      // this.imageUrl = require('../../assets/QQ8.jpg')
+      this.imageUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    },
     methods: {
+      changeImage(file) {
+        var self = this
+        var reader = new FileReader()
+        reader.readAsDataURL(this.$refs.avatarInput.files[0])
+        reader.onload = function(evt) {
+          self.form.imageUrl = reader.result
+          console.log(self.form.imageUrl)
+        }
+      },
       handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw)
+        // this.imageUrl = URL.createObjectURL(file.raw)
+        var reader = new FileReader()
+        reader.readAsDataURL = (file.files[0])
+        reader.onload = function() {
+          this.imageUrl = reader.readAsDataURL
+        }
       },
       beforeAvatarUpload(file) {
         const isJPG = file.type === 'image/jpeg'

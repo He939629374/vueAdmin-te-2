@@ -1,17 +1,17 @@
 <template>
   <div class="app-container ">
     <div class="filter-container" style="padding-bottom:10px">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"  v-model="listQuery.title">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"  v-model="listQuery.title" placeholder="任务名称">
       </el-input>
-      <el-select clearable style="width: 90px" class="filter-item" v-model="listQuery.importance">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item">
+      <el-select clearable style="width: 110px" class="filter-item" v-model="listQuery.status" placeholder="状态">
+        <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" >
         </el-option>
       </el-select>
-      <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.type" >
-        <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
+      <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.pageviews" placeholder="考察点">
+        <el-option v-for="item in  pageviewsOptions" :key="item" :label="item" :value="item">
         </el-option>
       </el-select>
-      <el-select @change='handleFilter' style="width: 140px" class="filter-item" v-model="listQuery.sort">
+      <el-select @change='handleFilter' style="width: 140px" class="filter-item" v-model="listQuery.sort" placeholder="ID">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key">
         </el-option>
       </el-select>
@@ -23,6 +23,11 @@
     <el-table  :data="list" v-loading.body="listLoading" element-loading-text="Loading"  
     border fit highlight-current-row
      @current-change="handleCurrentChange1"  >
+     <el-table-column
+      type="selection"
+      width="45"
+      >
+    </el-table-column>
       <el-table-column align="center" label='ID' width="95" >
         <template slot-scope="scope" >
           {{scope.$index+1}}
@@ -105,7 +110,7 @@
 <script>
 // import { getList } from '@/api/table'
 import axios from 'axios'
-const ValID = ''
+// const ValID = ''
 export default {
   data() {
     return {
@@ -120,15 +125,13 @@ export default {
         status: ''
       },
       listQuery: {
-        page: 2,
+        page: 1,
         limit: 20,
-        importance: 1,
-        title: 2,
-        type: 3,
-        sort: '+id'
+        status: '',
+        title: '',
+        pageviews: '',
+        sort: ''
       },
-      importanceOptions: {},
-      calendarTypeOptions: {},
       sortOptions: {},
       pageviewsOptions: ['南海', '禅城', '顺德'],
       statusOptions: ['published', 'draft', 'deleted'],
@@ -156,21 +159,43 @@ export default {
     fetchData() {
       this.listLoading = true
       var self = this
-      axios.get('http://127.0.0.1:3000/list')
+      axios.get('http://127.0.0.1:3000/list' + '?limit=' + this.listQuery.limit)
         .then(function(response) {
-          console.log(response.data[1].ID)
-          console.log(response.data.length)
-          console.log(response.data[0])
-          self.list = response.data
+          console.log(response.data[0][0].ID)
+          console.log(response.data[1])
+          self.total = response.data[1][0].len
+          // self.list = [].concat.apply([], response.data)
+          self.list = response.data[0]
+          // console.log(self.list)
           self.listLoading = false
-          self.total = response.data.length
         }).catch(function(error) {
           console.log(error)
         })
     },
+    searchData() {
+      this.listLoading = true
+      var self = this
+      axios.get('http://127.0.0.1:3000/search' + '?limit=' +
+        this.listQuery.limit + '&status=' +
+        this.listQuery.status + '&title=' +
+        this.listQuery.title + '&pageviews=' +
+        this.listQuery.pageviews)
+        .then(function(response) {
+          console.log(response.data[0][0].ID)
+          console.log(response.data[1])
+          self.total = response.data[1][0].len
+          // self.list = [].concat.apply([], response.data)
+          self.list = response.data[0]
+          // console.log(self.list)
+          self.listLoading = false
+        }).catch(function(error) {
+          console.log(error)
+          self.listLoading = false
+        })
+    },
     handleFilter() {
       this.listQuery.page = 1
-      this.fetchData()
+      this.searchData()
     },
     handleSizeChange(val) {
       if (this.listQuery.limit === val) {

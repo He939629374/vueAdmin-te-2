@@ -64,6 +64,14 @@ export default {
       pwdType: 'password'
     }
   },
+  created() {
+    if (localStorage.username !== undefined && localStorage.password !== undefined) {
+      this.loginForm.username = localStorage.username
+      this.loginForm.password = localStorage.password
+      console.log('name: ' + localStorage.username + ' psd: ' + localStorage.password)
+      console.log(this.loginForm.username + ' : ' + this.loginForm.password)
+    }
+  },
   methods: {
     showPwd() {
       if (this.pwdType === 'password') {
@@ -73,10 +81,10 @@ export default {
       }
     },
     handleLogin() {
+      // var self = this
       var self = this
-      var name = this.loginForm.username
-      var psd = this.loginForm.password
-      axios.get('http://localhost:3000/query?name=' + name + '&password=' + psd, {
+      // localStorage.clear()
+      axios.get('http://localhost:3000/query?name=' + this.loginForm.username + '&password=' + this.loginForm.password, {
 
       })
         .then(function(response) {
@@ -86,6 +94,8 @@ export default {
             self.$store.dispatch('Login', self.loginForm).then(() => {
               self.loading = false
               self.$router.push({ path: '/' })
+              localStorage.username = self.loginForm.username
+              localStorage.password = self.loginForm.password
             }).catch(() => {
               self.loading = false
             })
