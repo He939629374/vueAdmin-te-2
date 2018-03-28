@@ -81,16 +81,13 @@ export default {
       }
     },
     handleLogin() {
-      // var self = this
       var self = this
-      // localStorage.clear()
       axios.get('http://localhost:3000/query?name=' + this.loginForm.username + '&password=' + this.loginForm.password, {
-
       })
         .then(function(response) {
           self.loading = true
           console.log(response)
-          if (response.data === 200) {
+          if (response.data == 200) {
             self.$store.dispatch('Login', self.loginForm).then(() => {
               self.loading = false
               self.$router.push({ path: '/' })
@@ -105,25 +102,7 @@ export default {
             self.loading = false
             return false
           }
-        // self.list = response.data.items
-        // self.listLoading = false
-        }).catch(function(error) {
-          console.log(error)
         })
-      // this.$refs.loginForm.validate(valid => {
-      //   if (valid) {
-      //     this.loading = true
-      //     this.$store.dispatch('Login', this.loginForm).then(() => {
-      //       this.loading = false
-      //       this.$router.push({ path: '/' })
-      //     }).catch(() => {
-      //       this.loading = false
-      //     })
-      //   } else {
-      //     console.log('error submit!!')
-      //     return false
-      //   }
-      // })
     }
   }
 }
