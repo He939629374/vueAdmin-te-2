@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column label="任务名" min-width="150px">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleEdit(scope.$index,scope.row)">{{scope.row.title}}</span>
+          <span class="link-type" @click="opendialog(scope.row.ID)">{{scope.row.title}}</span>
         </template>
       </el-table-column>
       <el-table-column label="处理人" width="110" align="center">
@@ -71,8 +71,8 @@
    <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
-   </el-pagination>
-    </div>
+    </el-pagination>
+   </div>
 <el-dialog title="详情" :visible.sync="dialogTableVisible">
   <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
     <el-form-item label="任务名">
@@ -80,7 +80,7 @@
     </el-form-item>
     <el-form-item label="处理人">
       <el-input v-model="temp.author" placeholder="请填写处理人"></el-input>
-</el-form-item>
+    </el-form-item>
     <el-form-item label="考察点">
       <el-select v-model="temp.pageviews" placeholder="请选择考察点">
         <el-option v-for="item in  pageviewsOptions" :key="item" :label="item" :value="item">
@@ -104,16 +104,20 @@
         <el-button v-else type="primary" @click="updateData">确定</el-button>
   </div>
 </el-dialog>
+<el-dialog title="任务详情" :visible.sync="dialogMyqVisible"  >
+  <myQ :qindex="queindex" :status="status"></myQ>
+</el-dialog >
   </div>
 </template>
 
 <script>
-// import { getList } from '@/api/table'
+import myQ from '@/views/table/work.vue'
 import axios from 'axios'
 // const ValID = ''
 export default {
   data() {
     return {
+      status:true,
       temp: {
         // id: undefined,
         // importance: 1,
@@ -136,10 +140,12 @@ export default {
       pageviewsOptions: ['南海', '禅城', '顺德'],
       statusOptions: ['published', 'draft', 'deleted'],
       dialogTableVisible: false,
+      dialogMyqVisible: false,
       dialogStatus: '',
       list: null,
       listLoading: true,
-      total: null
+      total: null,
+      queindex: ''
     }
   },
   filters: {
@@ -155,6 +161,7 @@ export default {
   created() {
     this.fetchData()
   },
+  components: { myQ },
   methods: {
     fetchData() {
       this.listLoading = true
@@ -213,7 +220,7 @@ export default {
     },
     handleCurrentChange1(val) {
       this.ValID = val.ID
-      console.log(this.ValID)
+      console.log("this:"+this.ValID)
     },
     resetTemp() {
       this.temp = {
@@ -299,6 +306,11 @@ export default {
         type: 'success'
       })
       row.status = status
+    },
+    opendialog(index) {
+      console.log(index)
+      this.dialogMyqVisible = true
+      this.queindex = index
     },
     handleEdit(index, row) {
       console.log(row.ID)

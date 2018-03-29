@@ -172,6 +172,50 @@ async function upList(que) {
   return (dataList)
 
 }
+
+//新增题目
+async function Addques(field) {
+	console.log('result:'+field.alllist.length)
+	let sql =''
+	let sql2 ="update list set status='published' where ID='' "
+	for(var i=0; i<field.alllist.length; i++){
+		sql = 'INSERT INTO question ( qtitle, type,qanswer,selfid,caseid ) VALUES '+" ( '" +
+		field.alllist[i].title + "','"+ field.alllist[i].type + "','" +field.alllist[i].radio + "','" +field.alllist[i].id + "','" + field.qindex + "' )"
+		sql2 ="update list set status='published' where ID=' " +field.qindex+"'"
+		console.log('sql:' + sql )
+		console.log('sql2:' + sql2 )
+		var dataList = await query( sql )
+		var dataList2 = await query( sql2 )
+	}
+  // console.log('selectAllData:' + dataList )
+    return dataList
+}
+async function addques(que) {
+  //console.log('result:'+que)
+   let dataList = await Addques(que)
+   var a = JSON.parse(dataList)
+   console.log('result:'+dataList)
+   return (dataList)
+}
+
+//获取题目
+async function Getques() {	
+  let sql = "select * from  list  where status='published'"
+  //let sql2 = ' SELECT  COUNT(*) as len FROM list  '
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Getques:' + dataList )
+  return (d1)
+}
+async function getques() {
+	let dataList = await Getques()
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+  
+}
+
 router
   .get('/query',async (ctx,next) => {
   console.log(ctx.query.password);
@@ -188,7 +232,11 @@ router
   ctx.body =await getList(ctx.query) 
   //console.log(ctx.body);
   })
-  
+  .get('/getques',async (ctx,next) => {
+  //console.log(ctx.query);
+  ctx.body =await getques() 
+  //console.log(ctx.body);
+  }) 
 router
   .post('/uplist',async (ctx,next) => {
   console.log(ctx.request.body)
@@ -201,6 +249,11 @@ router
   .post('/delList',async (ctx,next) => {
   console.log(ctx.request.body)
   ctx.body = await delList(ctx.request.body)
+})
+  .post('/addques',async (ctx,next) => {
+  //console.log(ctx.request.body[0])
+  console.log(JSON.stringify(ctx.request.body))
+  ctx.body = await addques(ctx.request.body)
 })
 // app.use(async (ctx, next) => {
     // // 允许来自所有域名请求
