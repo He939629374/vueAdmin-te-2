@@ -8,7 +8,7 @@
     </el-cascader>
       <el-button class="filter-item" type="primary"  icon="el-icon-search" @click="handleCreate">新增</el-button>
       <el-button v-if="status" class="filter-item" type="success"  icon="el-icon-upload" @click="handleSave">提交</el-button>
-      <el-button v-else class="filter-item" type="success"  icon="el-icon-circle-check-outline" @click="handleSave">保存</el-button>
+      <el-button v-else class="filter-item" type="success"  icon="el-icon-circle-ceck-outline" @click="handleSave">保存</el-button>
       <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork">
 
       </myQ>
@@ -51,74 +51,47 @@
         },
         listQuery2: [
           {
-            id: 0,
+            selfid: 0,
             type: '0',
-            title: 'asddasdasdasdddddddddddddddddddddddddddddddddddddddddddddddddddddd',
-            radio: '1',
-            edit: true
-          },
-          {
-            id: 1,
-            type: '0',
-            title: 'asdd2',
-            radio: '0',
-            edit: true
+            title: '标题',
+            radio: '',
+            edit: true, ceck:['']
           }
         ],
         liswork: [
           {
-            id: 0,
+            selfid: 0,
             type: '1',
-            title: 'asdd',
+            title: '标题',
             edit: true,
-            radio: ''
-          },
-          {
-            id: 1,
-            type: '1',
-            title: 'asdd2',
-            edit: true,
-            radio: ''
+            radio: '', ceck:['']
           }
         ],
         checkwork: [
           {
-            id: 0,
+            selfid: 0,
             type: '2',
             radio: ['北京'],
-            title: 'asddas',
-            check: ['上海', '北京', '广州', '深圳'],
-            edit: true
-          },
-          {
-            id: 1,
-            type: '2',
-            radio: ['上海1'],
-            title: 'adss',
-            check: ['上海1', '北京1', '广州1', '深圳1'],
+            title: '标题',
+            ceck: ['上海', '北京', '广州', '深圳'],
             edit: true
           }
         ],
         Askwork: [
           {
-            id: 0,
+            selfid: 0,
             type: '3',
-            title: 'asd112',
+            title: '标题',
             radio: '',
-            edit: true
-          },
-          {
-            id: 1,
-            type: '3',
-            title: 'eqd12',
-            radio: '',
-            edit: true
+            edit: true, ceck:['']
           }
         ]
       }
     },
     props:['qindex','status'],
     components: { myQ },
+    created(){
+    },
     methods: {
       Pushlist() {
         var self = this
@@ -134,6 +107,8 @@
         //this.listLoading = true
         var self = this
         this.Pushlist(self.Askwork,self.checkwork,self.liswork,self.listQuery2)
+        console.log(this.qindex)
+        console.log(this.alllist)
         var qs = require('qs') // 处理post内容格式
         axios.post('http://127.0.0.1:3000/addques', qs.stringify({
           alllist:self.alllist,
@@ -156,14 +131,14 @@
         console.log(this.selectedOptions2)
         if (this.selectedOptions2.length > 1) {
           if (this.selectedOptions2[1] == '是否') {
-            this.listQuery2.push({ title: 'moren', radio: '', edit: true,type: '0', id: this.listQuery2.length+1 })
+            this.listQuery2.push({ title: 'moren', radio: '', edit: true,type: '0', selfid: this.listQuery2.length+1, ceck:[''] })
           } else {
-            this.liswork.push({ title: 'moren', radio: '', edit: true,type: '1', id:this.liswork.length+1 })
+            this.liswork.push({ title: 'moren', radio: '', edit: true,type: '1', selfid:this.liswork.length+1, ceck:[''] })
           }
         } else if (this.selectedOptions2 == '多选') {
-          this.checkwork.push({ title: 'moren',  radio: ['上海'], edit: true, check: ['上海', '北京', '广州', '深圳'],type: '2', id:this.checkwork+1 })
+          this.checkwork.push({ title: 'moren',  radio: ['上海'], edit: true, ceck: ['上海', '北京', '广州', '深圳'],type: '2', selfid:this.checkwork+1 })
         } else if (this.selectedOptions2 == '填空') {
-          this.Askwork.push({ title: 'moren', radio: '', edit: true,type: '3', id:this.Askwork.length+1 })
+          this.Askwork.push({ title: 'moren', radio: '', edit: true,type: '3', selfid:this.Askwork.length+1, ceck:[''] })
         } else {
           this.$message({
             message: '新增类型未指定',

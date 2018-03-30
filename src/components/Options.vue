@@ -2,12 +2,6 @@
   <div>
     <div>
       <div v-for="(item,index) in list" :key='index' > 
-        <!-- <el-input v-if="!item.edit" class="item.edit-input" size="small" v-model="item.title"
-         @blur="item.edit = !item.edit"
-         @focus="focus($event)"
-         v-focus
-         ></el-input> -->
-        <!-- <p v-else @click="item.edit = false">{{ item.title }}</p> -->
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
         <el-button @click="del(list,index)" >删除</el-button>
         <el-radio v-model="item.radio" label="1">是</el-radio>
@@ -16,8 +10,6 @@
     </div>
       <div>
       <div v-for="(item,index) in lis" :key='index'>
-        <!-- <el-input v-if="!item.edit" class="item.edit-input" size="small" v-model="item.title"></el-input>
-        <p v-else @click="item.edit = false" >{{ item.title }}</p> -->
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
         <el-button @click="del(lis,index)" >删除</el-button>
         <el-rate
@@ -30,19 +22,11 @@
 
       <div>
       <div v-for="(item,index) in checkQuery" :key='index'>
-        <!-- <el-input v-if="!item.edit" class="item.edit-input" size="small" v-model="item.title"></el-input>
-        <p v-else @click="item.edit = false" >{{ item.title }}</p> -->
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
         <el-button @click="del(checkQuery,index)" >删除</el-button>
         <div>
-  <!-- <el-checkbox-group 
-    v-model="radioCities1"
-    :min="1"
-    :max="2">
-    <el-checkbox v-for="city in cities" :label="city" :key="city">{{city}}</el-checkbox>
-  </el-checkbox-group> -->
     <el-checkbox-group v-model="checkQuery[index].radio">
-          <el-checkbox v-for="mpb in checkQuery[index].check" :key="mpb" :label='mpb'>{{mpb}}</el-checkbox>
+          <el-checkbox v-for="mpb in checkQuery[index].ceck" :key="mpb" :label='mpb'>{{mpb}}</el-checkbox>
     </el-checkbox-group>
         </div>
       </div>
@@ -50,10 +34,6 @@
 
       <div>
       <div v-for="(item,index) in AskQuery" :key='index'>
-        <!-- <el-button v-if="item.edit" @click="item.edit = !item.edit" v-model="item.title">修改</el-button>
-        <el-button v-else @click="item.edit = !item.edit">完成</el-button> -->
-        <!-- <el-input v-if="!item.edit" class="item.edit-input" size="small" v-model="item.title"></el-input> -->
-        <!-- <p v-else @click="item.edit = false" >{{ item.title }}</p> -->
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
         <el-button @click="del(AskQuery,index)" >删除</el-button>
         <el-input
@@ -74,7 +54,7 @@
       return {
       }
     },
-    props: ['logo', 'list', 'lis', 'checkQuery', 'AskQuery'],
+    props: ['list', 'lis', 'checkQuery', 'AskQuery'],
     methods: {
       aa(a) {
         console.log(a)

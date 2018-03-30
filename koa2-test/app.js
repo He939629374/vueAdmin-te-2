@@ -179,8 +179,8 @@ async function Addques(field) {
 	let sql =''
 	let sql2 ="update list set status='published' where ID='' "
 	for(var i=0; i<field.alllist.length; i++){
-		sql = 'INSERT INTO question ( qtitle, type,qanswer,selfid,caseid ) VALUES '+" ( '" +
-		field.alllist[i].title + "','"+ field.alllist[i].type + "','" +field.alllist[i].radio + "','" +field.alllist[i].id + "','" + field.qindex + "' )"
+		sql = 'INSERT INTO question ( title, type,radio,selfid,caseid,ceck ) VALUES '+" ( '" +
+		field.alllist[i].title + "','"+ field.alllist[i].type + "','" +field.alllist[i].radio + "','" +field.alllist[i].selfid + "','" + field.qindex + "','" + field.alllist[i].ceck + "' )"
 		sql2 ="update list set status='published' where ID=' " +field.qindex+"'"
 		console.log('sql:' + sql )
 		console.log('sql2:' + sql2 )
@@ -198,7 +198,7 @@ async function addques(que) {
    return (dataList)
 }
 
-//获取题目
+//获取已创建题目的任务
 async function Getques() {	
   let sql = "select * from  list  where status='published'"
   //let sql2 = ' SELECT  COUNT(*) as len FROM list  '
@@ -210,6 +210,24 @@ async function Getques() {
 }
 async function getques() {
 	let dataList = await Getques()
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+  
+}
+
+//获取题目
+async function Gethandle(field) {	
+  let sql = "select * from  question  where caseid='" + field.ID + "'"
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Gethandle:' + dataList )
+  console.log('Gethandle:' + d1 )
+  return (d1)
+}
+async function gethandle(que) {
+	let dataList = await Gethandle(que)
 	return (dataList)
   //var a = JSON.parse(dataList)
   //console.log('result:'+dataList)
@@ -235,6 +253,11 @@ router
   .get('/getques',async (ctx,next) => {
   //console.log(ctx.query);
   ctx.body =await getques() 
+  //console.log(ctx.body);
+  }) 
+  .get('/gethandle',async (ctx,next) => {
+  console.log("1");
+  ctx.body =await gethandle(ctx.query) 
   //console.log(ctx.body);
   }) 
 router

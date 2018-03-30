@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column label="任务名" min-width="150px">
         <template slot-scope="scope">
-          <span class="link-type" @click="opendialog(scope.row.ID)">{{scope.row.title}}</span>
+          <span class="link-type" @click="opendialog(scope.$index, scope.row.ID)">{{scope.row.title}}</span>
         </template>
       </el-table-column>
       <el-table-column label="处理人" width="110" align="center">
@@ -107,17 +107,22 @@
 <el-dialog title="任务详情" :visible.sync="dialogMyqVisible"  >
   <myQ :qindex="queindex" :status="status"></myQ>
 </el-dialog >
+<el-dialog title="任务详情" :visible.sync="dialogMyqVisible2"  >
+  <myQ2 ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork">
+  </myQ2>
+</el-dialog >
   </div>
 </template>
 
 <script>
 import myQ from '@/views/table/work.vue'
+import myQ2 from '@/components/Options.vue'
 import axios from 'axios'
 // const ValID = ''
 export default {
   data() {
     return {
-      status:true,
+      status:true, //true创建 false保存
       temp: {
         // id: undefined,
         // importance: 1,
@@ -141,11 +146,16 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       dialogTableVisible: false,
       dialogMyqVisible: false,
+      dialogMyqVisible2: false,
       dialogStatus: '',
       list: null,
       listLoading: true,
       total: null,
-      queindex: ''
+      queindex: '',
+      listQuery2: [],
+      liswork: [],
+      checkwork: [],
+      Askwork: []
     }
   },
   filters: {
@@ -161,7 +171,7 @@ export default {
   created() {
     this.fetchData()
   },
-  components: { myQ },
+  components: { myQ, myQ2 },
   methods: {
     fetchData() {
       this.listLoading = true
@@ -299,18 +309,47 @@ export default {
       })
     },
     handleModifyStatus(row, status) {
-      console.log(row.status)
-      console.log(status)
       this.$message({
         message: '操作成功',
         type: 'success'
       })
       row.status = status
     },
-    opendialog(index) {
-      console.log(index)
-      this.dialogMyqVisible = true
-      this.queindex = index
+    opendialog(index,ID) {
+      this.listQuery2=[]
+      this.liswork=[]
+      this.checkwork=[]
+      this.Askwork=[]
+      console.log(ID)
+      this.queindex = ID
+      if(this.list[index].status != "draft"){
+      var self = this
+        axios.get('http://127.0.0.1:3000/gethandle' + '?ID=' + ID)
+          .then(function(response) {
+            console.log(response.data)   
+            for(var i=0;i<response.data.length;i++){
+              if (response.data[i].type == 0) {
+                  self.listQuery2.push(response.data[i])
+              } else if (response.data[i].type == 1) {
+                  self.liswork.push(response.data[i])
+              } else if (response.data[i].type == 2) {
+                response.data[i].ceck = response.data[i].ceck.split(",")
+                response.data[i].radio = response.data[i].radio.split(",")
+                self.checkwork.push(response.data[i])
+                console.log(self.checkwork)   
+              } else if (response.data[i].type == 3) {
+                self.Askwork.push(response.data[i])
+              } else {
+              }
+            }
+            self.dialogMyqVisible2 = true
+          }).catch(function(error) {
+            console.log(error)
+          })
+      } else {
+        this.dialogMyqVisible = true
+      }
+      //this.fetchData()
     },
     handleEdit(index, row) {
       console.log(row.ID)
