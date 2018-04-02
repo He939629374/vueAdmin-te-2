@@ -83,20 +83,26 @@ async function selectAllList(field) {
 }
 async function searchList(field) {
 	let sql = 'SELECT * FROM list where 1=1 '
+	let sql2 = ' SELECT  COUNT(*) as len FROM list where 1=1 '
 	if(field.title){
 		sql =sql +'and title = "' + field.title +  '" '
+		sql2 =sql2 +'and title = "' + field.title +  '" '
 	}
 	if(field.status){
 		sql =sql + ' and status = "' +field.status +  '" '
+		sql2 =sql2 + ' and status = "' +field.status +  '" '
 	}
 	if(field.pageviews){
 		sql =sql + ' and pageviews = "' +field.pageviews +  '" '
+		sql2 =sql2 + ' and pageviews = "' +field.pageviews +  '" '
 	}
-	sql =sql +  ' limit 0,' + field.limit
-
-  //let sql = 'SELECT * FROM list where status = "'  + field.status + '" and pageviews = "' + field.pageviews + '" and title = "' + field.title + '" limit 0,' + field.limit 
-  let sql2 = ' SELECT  COUNT(*) as len FROM list where status = "'  + field.status + '" and pageviews = "' + field.pageviews + '" and title = "' + field.title + '" '
+	if(field.ID){
+		sql =sql + ' and ID = "' +field.ID +  '" '
+		sql2 =sql2 + ' and ID = "' +field.ID +  '" '
+	}
+		sql =sql +  ' limit ' + (field.limit2-1)*field.limit + ',' + field.limit	
   console.log(sql)
+  console.log(sql2)
   let dataList = await query( sql )
   let dataList2 = await query( sql2 )
   console.log(dataList,dataList2)
@@ -109,8 +115,8 @@ async function searchList(field) {
   return (c)
 }
 async function getList(que) {
-  if(que.status||que.title||que.pageviews){
-	   console.log('que.status')
+  if(que.status||que.title||que.pageviews||que.ID){
+	   console.log(que)
 	let dataList = await searchList(que)
 	return (dataList)
   }else {
@@ -140,9 +146,13 @@ async function addList(que) {
 
 //删除列表
 async function DelList(field) {
-  let sql = "DELETE FROM list WHERE ID='" + field.id + "'" 
-  console.log('sql:' + sql )
-  let dataList = await query( sql )
+	console.log('field:' + field )
+	console.log('field:' + field.id[0])
+	for(var i=0; i<field.id.length; i++){
+		let sql = "DELETE FROM list WHERE ID='" + field.id[i] + "'" 
+		console.log('sql:' + sql )
+		var dataList = await query( sql )
+	}
   //console.log('selectAllData:' + dataList )
   return dataList
 }
@@ -199,8 +209,8 @@ async function addques(que) {
 }
 
 //获取已创建题目的任务
-async function Getques() {	
-  let sql = "select * from  list  where status='published'"
+async function Getques(field) {	
+  let sql = "select * from  list  where author='" + field.author + "'" + "and exauthor not like '%" + field.author + "%'" 
   //let sql2 = ' SELECT  COUNT(*) as len FROM list  '
   console.log(sql)
   let dataList = await query( sql )
@@ -208,8 +218,8 @@ async function Getques() {
   console.log('Getques:' + dataList )
   return (d1)
 }
-async function getques() {
-	let dataList = await Getques()
+async function getques(que) {
+	let dataList = await Getques(que)
 	return (dataList)
   //var a = JSON.parse(dataList)
   //console.log('result:'+dataList)
@@ -231,7 +241,40 @@ async function gethandle(que) {
 	return (dataList)
   //var a = JSON.parse(dataList)
   //console.log('result:'+dataList)
+}
+
+//获取已办
+async function Getdone(field) {	
+  let sql = "select * from  list  where exauthor='" + field.exauthor + "'"
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Getdone:' + dataList )
+  return (d1)
+}
+async function getdone(que) {
+	let dataList = await Getdone(que)
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
   
+}
+
+//更新状态
+async function Upstatus(field) {
+	console.log(field)
+  let sql = 'update list set status=' +"'" + field.status + "'" +' where id=' +"'" + field.id +"'" 
+  console.log('sql:' + sql )
+  let dataList = await query( sql )
+  //console.log('selectAllData:' + dataList )
+  return dataList
+}
+async function upstatus(que) {
+  let dataList = await Upstatus(que)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+  return (dataList)
+
 }
 
 router
@@ -252,12 +295,17 @@ router
   })
   .get('/getques',async (ctx,next) => {
   //console.log(ctx.query);
-  ctx.body =await getques() 
+  ctx.body =await getques(ctx.query) 
   //console.log(ctx.body);
   }) 
   .get('/gethandle',async (ctx,next) => {
   console.log("1");
   ctx.body =await gethandle(ctx.query) 
+  //console.log(ctx.body);
+  }) 
+  .get('/getdone',async (ctx,next) => {
+  console.log(ctx.query);
+  ctx.body =await getdone(ctx.query) 
   //console.log(ctx.body);
   }) 
 router
@@ -277,6 +325,11 @@ router
   //console.log(ctx.request.body[0])
   console.log(JSON.stringify(ctx.request.body))
   ctx.body = await addques(ctx.request.body)
+})
+  .post('/upstatus',async (ctx,next) => {
+  //console.log(ctx.request.body[0])
+  console.log(JSON.stringify(ctx.request.body))
+  ctx.body = await upstatus(ctx.request.body)
 })
 // app.use(async (ctx, next) => {
     // // 允许来自所有域名请求

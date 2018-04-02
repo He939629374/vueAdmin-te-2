@@ -9,7 +9,7 @@
       <el-button class="filter-item" type="primary"  icon="el-icon-search" @click="handleCreate">新增</el-button>
       <el-button v-if="status" class="filter-item" type="success"  icon="el-icon-upload" @click="handleSave">提交</el-button>
       <el-button v-else class="filter-item" type="success"  icon="el-icon-circle-ceck-outline" @click="handleSave">保存</el-button>
-      <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork">
+      <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork" :isdel='iswork'>
 
       </myQ>
     </div>
@@ -22,6 +22,7 @@
   export default {
     data() {
       return {
+        iswork:'',
         alllist:[],
         listLoading: false,
         selectedOptions2: [],
@@ -45,10 +46,6 @@
           value: '上传',
           label: '上传'
         }],
-        headOptions: {
-          type: '',
-          status: ''
-        },
         listQuery2: [
           {
             selfid: 0,
@@ -110,22 +107,24 @@
         console.log(this.qindex)
         console.log(this.alllist)
         var qs = require('qs') // 处理post内容格式
-        axios.post('http://127.0.0.1:3000/addques', qs.stringify({
-          alllist:self.alllist,
-          qindex:self.qindex
-        }))
-        .then(function(response) {
-          self.alllist=[]
-          console.log(response.data[0][0].ID)
-          console.log(response.data[1])
-          self.total = response.data[1][0].len
-          // self.list = [].concat.apply([], response.data)
-          self.list = response.data[0]
-          // console.log(self.list)
-          self.listLoading = false
-        }).catch(function(error) {
-          console.log(error)
-        })
+        // axios.post('http://127.0.0.1:3000/addques', qs.stringify({
+        //   alllist:self.alllist,
+        //   qindex:self.qindex
+        // }))
+        // .then(function(response) {
+        //   self.alllist=[]
+        //   self.listLoading = false
+        //   self.$router.go(0);
+        // }).catch(function(error) {
+        //   console.log(error)
+        // })
+        this.dialogMyqVisible = true
+this.$router.push({
+path:this.$route.fullPath, // 获取当前连接，重新跳转
+query:{
+_time:new Date().getTime()/1000  // 时间戳，刷新当前router
+  }
+})
       },
       handleCreate() {
         console.log(this.selectedOptions2)

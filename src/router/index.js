@@ -48,7 +48,7 @@ export const constantRouterMap = [
         path: 'table',
         name: 'Table',
         component: () => import('@/views/table/index'),
-        meta: { title: '列表格', icon: 'table' }
+        meta: { title: '任务管理', icon: 'table' }
       },
       {
         path: 'tree',
@@ -64,9 +64,15 @@ export const constantRouterMap = [
       },
       {
         path: 'mywork',
-        name: 'myWork',
+        name: 'MyWork',
         component: () => import('@/views/table/mywork'),
-        meta: { title: '待处理任务', icon: 'form' }
+        meta: { title: '待办', icon: 'form' }
+      },
+      {
+        path: 'donework',
+        name: 'Donework',
+        component: () => import('@/views/table/donework'),
+        meta: { title: '已办', icon: 'form' }
       }
     ]
   },

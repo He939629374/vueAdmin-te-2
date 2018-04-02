@@ -3,16 +3,17 @@
     <div>
       <div v-for="(item,index) in list" :key='index' > 
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
-        <el-button @click="del(list,index)" >删除</el-button>
-        <el-radio v-model="item.radio" label="1">是</el-radio>
-        <el-radio v-model="item.radio" label="0">否</el-radio>
+        <el-button @click="del(list,index)" v-if="isdel">删除</el-button>
+        <el-radio v-model="item.radio" label="1" :disabled="isinput">是</el-radio>
+        <el-radio v-model="item.radio" label="0" :disabled="isinput">否</el-radio>
       </div>
     </div>
       <div>
       <div v-for="(item,index) in lis" :key='index'>
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
-        <el-button @click="del(lis,index)" >删除</el-button>
+        <el-button @click="del(lis,index)" v-if="isdel">删除</el-button>
         <el-rate
+        :disabled="isinput"
         v-model="item.radio"
         :colors="['#99A9BF', '#F7BA2A', '#FF9900']"
         show-text>
@@ -23,11 +24,11 @@
       <div>
       <div v-for="(item,index) in checkQuery" :key='index'>
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
-        <el-button @click="del(checkQuery,index)" >删除</el-button>
+        <el-button @click="del(checkQuery,index)" v-if="isdel">删除</el-button>
         <div>
-    <el-checkbox-group v-model="checkQuery[index].radio">
-          <el-checkbox v-for="mpb in checkQuery[index].ceck" :key="mpb" :label='mpb'>{{mpb}}</el-checkbox>
-    </el-checkbox-group>
+          <el-checkbox-group v-model="checkQuery[index].radio">
+                <el-checkbox v-for="mpb in checkQuery[index].ceck" :key="mpb" :label='mpb' :disabled="isinput">{{mpb}}</el-checkbox>
+          </el-checkbox-group>
         </div>
       </div>
       </div>
@@ -35,13 +36,14 @@
       <div>
       <div v-for="(item,index) in AskQuery" :key='index'>
         <textarea v-model="item.title" @click="aa" class="active"></textarea>
-        <el-button @click="del(AskQuery,index)" >删除</el-button>
+        <el-button @click="del(AskQuery,index)" v-if="isdel">删除</el-button>
         <el-input
           type="textarea"
           autosize
           placeholder="请输入内容"
           v-model="item.radio"
-          clearable>
+          clearable
+          :disabled="isinput" >
         </el-input>
       </div>
       </div>
@@ -54,7 +56,7 @@
       return {
       }
     },
-    props: ['list', 'lis', 'checkQuery', 'AskQuery'],
+    props: ['list', 'lis', 'checkQuery', 'AskQuery','isdel','isinput'],
     methods: {
       aa(a) {
         console.log(a)

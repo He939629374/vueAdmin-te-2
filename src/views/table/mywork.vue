@@ -10,18 +10,21 @@
       width="180">
     </el-table-column>
     <el-table-column align="center"
-      prop="title"
       label="任务名"
       width="180">
+      <template slot-scope="scope">
+          <span class="link-type" @click="opendialog(scope.$index, scope.row.ID)">{{scope.row.title}}</span>
+      </template>
     </el-table-column>
     <el-table-column align="center"
       prop="author"
       label="当前负责人">
     </el-table-column>
-    <el-table-column align="center"
-      prop="status"
-      label="进度">
-    </el-table-column>
+      <el-table-column class-name="status-col" label="进度" width="110" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+        </template>
+      </el-table-column>
     <el-table-column align="center"
       prop="address"
       label="操作">
@@ -33,7 +36,7 @@
     </el-table-column>
   </el-table>
 <el-dialog title="任务详情" :visible.sync="dialogMyqVisible"  >
-  <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork">
+  <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork" :isdel='iswork' :isinput='inputwork'>
   </myQ>
 </el-dialog >
 </div>
@@ -55,6 +58,8 @@
   export default {
     data() {
       return {
+        inputwork:false,
+        iswork:false,
         geturl : 'http://127.0.0.1:3000/getques',
         handleurl: 'http://127.0.0.1:3000/gethandle',
         dialogMyqVisible: false,
@@ -68,8 +73,19 @@
       }
     },
     components: { myQ },
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          published: 'success',
+          draft: 'info',
+          deleted: 'danger'
+        }
+        return statusMap[status]
+      }
+    },
     created() {
       this.fetchData(this.geturl)
+      console.log("1")
     },
     methods: {
         tableRowClassName({row, rowIndex}) {
@@ -83,7 +99,7 @@
         fetchData(url) {
         this.listLoading = true
         var self = this
-        axios.get(url)
+        axios.get(url  + '?author=' + localStorage.username)
             .then(function(response) {
             console.log(response.data[0])
             self.tableData = response.data
@@ -122,7 +138,20 @@
             self.dialogMyqVisible2 = true
             self.dialogMyqVisible = true
           })
-    }
+    },
+    handleModifyStatus(row, status) {
+      this.$message({
+        message: '操作成功',
+        type: 'success'
+      })
+      row.status = 'draft'
+      this.$router.push({
+      path:this.$route.fullPath, // 获取当前连接，重新跳转
+      query:{
+      _time:new Date().getTime()/1000  // 时间戳，刷新当前router
+        }
+      })
+    },
   }
   }
 </script>
