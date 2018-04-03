@@ -68,37 +68,41 @@ function extend(target, source) {
     }
 //获取列表
 async function selectAllList(field) {
-  let sql = 'SELECT * FROM list limit 0,' + field
+  var sql = 'SELECT * FROM list limit 0,' + field
   let sql2 = ' SELECT  COUNT(*) as len FROM list  '
+  console.log(sql)
   console.log(sql2)
   let dataList = await query( sql )
   let dataList2 = await query( sql2 )
-  //var c = extend(JSON.parse(dataList), JSON.parse(dataList2));
   var d1=JSON.parse(dataList)
   var d2=JSON.parse(dataList2)
   var c = [d1,d2]
   console.log(c[1][0].len)
-  //console.log('selectAllData:' + dataList )
   return (c)
 }
 async function searchList(field) {
+	console.log(field)
 	let sql = 'SELECT * FROM list where 1=1 '
 	let sql2 = ' SELECT  COUNT(*) as len FROM list where 1=1 '
 	if(field.title){
 		sql =sql +'and title = "' + field.title +  '" '
 		sql2 =sql2 +'and title = "' + field.title +  '" '
+		console.log(field.title)
 	}
 	if(field.status){
 		sql =sql + ' and status = "' +field.status +  '" '
 		sql2 =sql2 + ' and status = "' +field.status +  '" '
+		console.log(field.status)
 	}
 	if(field.pageviews){
 		sql =sql + ' and pageviews = "' +field.pageviews +  '" '
 		sql2 =sql2 + ' and pageviews = "' +field.pageviews +  '" '
+		console.log(field.pageviews)
 	}
 	if(field.ID){
 		sql =sql + ' and ID = "' +field.ID +  '" '
 		sql2 =sql2 + ' and ID = "' +field.ID +  '" '
+		console.log(field.ID)
 	}
 		sql =sql +  ' limit ' + (field.limit2-1)*field.limit + ',' + field.limit	
   console.log(sql)
@@ -106,26 +110,14 @@ async function searchList(field) {
   let dataList = await query( sql )
   let dataList2 = await query( sql2 )
   console.log(dataList,dataList2)
-  //var c = extend(JSON.parse(dataList), JSON.parse(dataList2));
   var d1=JSON.parse(dataList)
   var d2=JSON.parse(dataList2)
   var c = [d1,d2]
-  //console.log(c[1][0].len)
-  //console.log('selectAllData:' + dataList )
   return (c)
 }
 async function getList(que) {
-  if(que.status||que.title||que.pageviews||que.ID){
-	   console.log(que)
-	let dataList = await searchList(que)
-	return (dataList)
-  }else {
-	let dataList = await selectAllList(que)  
-	return (dataList)
-  }
-  //var a = JSON.parse(dataList)
-  //console.log('result:'+dataList)
-  
+  let dataList = await selectAllList(que)  
+  return (dataList)
 }
 
 //新增列表
@@ -150,7 +142,9 @@ async function DelList(field) {
 	console.log('field:' + field.id[0])
 	for(var i=0; i<field.id.length; i++){
 		let sql = "DELETE FROM list WHERE ID='" + field.id[i] + "'" 
+		let sql2 = "DELETE FROM question WHERE caseid='" + field.id[i] + "'" 
 		console.log('sql:' + sql )
+		await query( sql2 )
 		var dataList = await query( sql )
 	}
   //console.log('selectAllData:' + dataList )
@@ -187,9 +181,12 @@ async function upList(que) {
 async function Addques(field) {
 	console.log('result:'+field.alllist.length)
 	let sql =''
-	let sql2 ="update list set status='published' where ID='' "
+	let sql2 =''
+	var sql3 = "DELETE FROM question WHERE caseid='" + field.qindex + "'"
+	var dataList3 = await query( sql3 )
 	for(var i=0; i<field.alllist.length; i++){
-		sql = 'INSERT INTO question ( title, type,radio,selfid,caseid,ceck ) VALUES '+" ( '" +
+		//let sql2 = "DELETE FROM question WHERE caseid='" + field.id[i] + "';" 
+		sql = 'INSERT INTO question ( title,type,radio,selfid,caseid,ceck ) VALUES '+" ( '" +
 		field.alllist[i].title + "','"+ field.alllist[i].type + "','" +field.alllist[i].radio + "','" +field.alllist[i].selfid + "','" + field.qindex + "','" + field.alllist[i].ceck + "' )"
 		sql2 ="update list set status='published' where ID=' " +field.qindex+"'"
 		console.log('sql:' + sql )
@@ -211,6 +208,7 @@ async function addques(que) {
 //获取已创建题目的任务
 async function Getques(field) {	
   let sql = "select * from  list  where author='" + field.author + "'" + "and exauthor not like '%" + field.author + "%'" 
+  
   //let sql2 = ' SELECT  COUNT(*) as len FROM list  '
   console.log(sql)
   let dataList = await query( sql )
@@ -264,8 +262,11 @@ async function getdone(que) {
 async function Upstatus(field) {
 	console.log(field)
   let sql = 'update list set status=' +"'" + field.status + "'" +' where id=' +"'" + field.id +"'" 
+  let sql2 = "update list set exauthor=CONCAT(exauthor,'," + field.exauthor + "') where ID=" + field.id  + "and exauthor not like '% " + field.exauthor + "%'" 
   console.log('sql:' + sql )
+  console.log('sql2:' + sql2 )
   let dataList = await query( sql )
+  let dataList = await query( sql2 )
   //console.log('selectAllData:' + dataList )
   return dataList
 }
@@ -284,13 +285,13 @@ router
   ctx.body =await getData(ctx.query.name,ctx.query.password) 
   })
   .get('/list',async (ctx,next) => {
-  console.log(ctx.query.limit);
+  console.log(ctx.query);
   ctx.body =await getList(ctx.query.limit) 
   //console.log(ctx.body);
   })
   .get('/search',async (ctx,next) => {
   console.log(ctx.query);
-  ctx.body =await getList(ctx.query) 
+  ctx.body =await searchList(ctx.query) 
   //console.log(ctx.body);
   })
   .get('/getques',async (ctx,next) => {

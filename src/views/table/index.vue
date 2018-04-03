@@ -28,7 +28,7 @@
     </el-table-column>
       <el-table-column align="center" label='ID' width="95" >
         <template slot-scope="scope" >
-          {{scope.$index+1}}
+          {{scope.row.ID}}
         </template>
       </el-table-column>
       <el-table-column align="center" prop="created_at" label="开始时间" width="200">
@@ -115,7 +115,7 @@
   <!-- <myQ2 :qindex="queindex" :status="status"></myQ2> -->
 </el-dialog >
 <el-dialog title="任务详情" :visible.sync="dialogMyqVisible2"  >
-  <myQ2 ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork" :isdel='iswork' :isinput='inputwork'>
+  <myQ2 ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork" :isdel='false' :isinput='inputwork'>
   </myQ2>
 </el-dialog >
   </div>
@@ -252,16 +252,16 @@ selectedOptions2: [],
           self.alllist=[]
           self.listLoading = false
           self.$router.go(0);
+          self.dialogMyqVisible = false
+      // self.$router.push({
+      // path:self.$route.fullPath, // 获取当前连接，重新跳转
+      // query:{
+      // _time:new Date().getTime()/1000  // 时间戳，刷新当前router
+      //   }
+      // })
         }).catch(function(error) {
           console.log(error)
         })
-        this.dialogMyqVisible = true
-// this.$router.push({
-// path:this.$route.fullPath, // 获取当前连接，重新跳转
-// query:{
-// _time:new Date().getTime()/1000  // 时间戳，刷新当前router
-//   }
-// })
       },
       handleCreate2() {
         console.log(this.selectedOptions2)
@@ -459,7 +459,6 @@ selectedOptions2: [],
       this.Askwork=[]
       console.log(ID)
       this.queindex = ID
-      if(this.list[index].status != "draft"){
       var self = this
         axios.get('http://127.0.0.1:3000/gethandle' + '?ID=' + ID)
           .then(function(response) {
@@ -479,13 +478,14 @@ selectedOptions2: [],
               } else {
               }
             }
-            self.dialogMyqVisible2 = true
           }).catch(function(error) {
             console.log(error)
           })
-      } else {
-        this.dialogMyqVisible = true
-      }
+          if(this.list[index].status != "draft"){
+            self.dialogMyqVisible2 = true
+          } else {
+            this.dialogMyqVisible = true
+          }
 
     },
     handleEdit(index, row) {

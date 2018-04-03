@@ -36,6 +36,7 @@
     </el-table-column>
   </el-table>
 <el-dialog title="任务详情" :visible.sync="dialogMyqVisible"  >
+  <el-button  class="filter-item" type="success"  icon="el-icon-circle-ceck-outline" @click="handleSave2">保存</el-button>
   <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork" :isdel='iswork' :isinput='inputwork'>
   </myQ>
 </el-dialog >
@@ -58,6 +59,7 @@
   export default {
     data() {
       return {
+        alllist:[],
         inputwork:false,
         iswork:false,
         geturl : 'http://127.0.0.1:3000/getques',
@@ -85,7 +87,6 @@
     },
     created() {
       this.fetchData(this.geturl)
-      console.log("1")
     },
     methods: {
         tableRowClassName({row, rowIndex}) {
@@ -101,7 +102,8 @@
         var self = this
         axios.get(url  + '?author=' + localStorage.username)
             .then(function(response) {
-            console.log(response.data[0])
+             // debugger
+            console.log(response.data)
             self.tableData = response.data
             console.log(self.tableData)
             self.listLoading = false
@@ -116,7 +118,7 @@
         this.Askwork=[]
         console.log(index)
         var self = this
-        this.queindex = index
+        this.queindex = ID
         axios.get('http://127.0.0.1:3000/gethandle' + '?ID=' + ID)
           .then(function(response) {
             console.log(response.data)   
@@ -135,22 +137,59 @@
               } else {
               }
             }
-            self.dialogMyqVisible2 = true
             self.dialogMyqVisible = true
           })
     },
+    Pushlist() {
+      var self = this
+      for(var i=0; i<arguments.length; i++){
+        var b = arguments[i]
+      let a = b.length
+      for(var j=0; j<a; j++){
+          self.alllist.push(b[j])
+      }   
+      }    
+    },
+      handleSave2() {
+        //this.listLoading = true
+        var self = this
+        this.Pushlist(self.Askwork,self.checkwork,self.liswork,self.listQuery2)
+        console.log("qindex"+this.queindex)
+        console.log(this.alllist)
+        var qs = require('qs') // 处理post内容格式
+        axios.post('http://127.0.0.1:3000/addques', qs.stringify({
+          alllist:self.alllist,
+          qindex:self.queindex
+        }))
+        .then(function(response) {
+          self.alllist=[]
+          self.listLoading = false
+          self.$router.go(0);
+          self.dialogMyqVisible = false
+      // self.$router.push({
+      // path:self.$route.fullPath, // 获取当前连接，重新跳转
+      // query:{
+      // _time:new Date().getTime()/1000  // 时间戳，刷新当前router
+      //   }
+      // })
+        }).catch(function(error) {
+          console.log(error)
+        })
+      },
     handleModifyStatus(row, status) {
+      var qs = require('qs') // 处理post内容格式
+      axios.post('http://127.0.0.1:3000/upstatus', qs.stringify({
+        status: status,
+        id: row.ID,
+        exauthor:localStorage.username
+      }))
       this.$message({
         message: '操作成功',
         type: 'success'
       })
+      console.log(row.status)
       row.status = 'draft'
-      this.$router.push({
-      path:this.$route.fullPath, // 获取当前连接，重新跳转
-      query:{
-      _time:new Date().getTime()/1000  // 时间戳，刷新当前router
-        }
-      })
+      this.fetchData(this.geturl)
     },
   }
   }
