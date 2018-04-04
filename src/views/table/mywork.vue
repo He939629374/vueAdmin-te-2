@@ -1,6 +1,7 @@
 <template>
 <div>
   <el-table
+  v-loading.body="listLoading"
     :data="tableData"
     style="width: 100%"
     :row-class-name="tableRowClassName">
@@ -30,7 +31,7 @@
       label="操作">
       <template slot-scope="scope">
           <el-button size="mini"  type="primary"  @click="opendialog(scope.$index, scope.row.ID)">处理</el-button>
-          <el-button v-if="scope.row.status ='published'"  size="mini"  type="success"  @click="handleModifyStatus(scope.row,'published')">提交</el-button>
+          <el-button v-if="scope.row.status =='published'"  size="mini"  type="success"  @click="handleModifyStatus(scope.row,'published')">提交</el-button>
           <el-button v-else size="mini" @click="handleModifyStatus(scope.row,'draft')">取回</el-button>
         </template>
     </el-table-column>
@@ -59,6 +60,7 @@
   export default {
     data() {
       return {
+        listLoading:false,
         alllist:[],
         inputwork:false,
         iswork:false,
@@ -102,8 +104,6 @@
         var self = this
         axios.get(url  + '?author=' + localStorage.username)
             .then(function(response) {
-             // debugger
-            console.log(response.data)
             self.tableData = response.data
             console.log(self.tableData)
             self.listLoading = false
@@ -166,30 +166,33 @@
           self.listLoading = false
           self.$router.go(0);
           self.dialogMyqVisible = false
-      // self.$router.push({
-      // path:self.$route.fullPath, // 获取当前连接，重新跳转
-      // query:{
-      // _time:new Date().getTime()/1000  // 时间戳，刷新当前router
-      //   }
-      // })
         }).catch(function(error) {
           console.log(error)
         })
       },
     handleModifyStatus(row, status) {
-      var qs = require('qs') // 处理post内容格式
-      axios.post('http://127.0.0.1:3000/upstatus', qs.stringify({
-        status: status,
-        id: row.ID,
-        exauthor:localStorage.username
-      }))
-      this.$message({
-        message: '操作成功',
-        type: 'success'
+      var self = this
+        var qs = require('qs') // 处理post内容格式
+        axios.post('http://127.0.0.1:3000/upstatus', qs.stringify({
+          status: status,
+          id: row.ID,
+          exauthor:row.author
+        }))
+          .then(function(response) {
+            console.log(response.data[0])
+            //self.dialogTableVisible = false // 关闭新增页面
+            self.fetchData(self.geturl)
+            self.listLoading = false
+          }).catch(function(error) {
+            console.log(error)
+          })
+      this.$notify({
+        title: '成功',
+        message: '更新成功',
+        type: 'success',
+        duration: 2000
       })
-      console.log(row.status)
-      row.status = 'draft'
-      this.fetchData(this.geturl)
+      row.status = status
     },
   }
   }

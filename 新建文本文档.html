@@ -1,0 +1,231 @@
+
+@{
+    ViewBag.Title = "WeekPC";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div id="app">
+    <div class="row">
+        <div id="lastw" class="col-md-2">上一周</div>
+        <div class="col-md-8"></div>
+        <div id="nextw" class="col-md-2">下一周</div>
+    </div>
+    <div class="week">
+        <h2 id="h_week" class="page-header">第{{week}}周工作安排</h2>
+    </div>
+    <table id="GZtable" class="table table-bordered,table table-hover">
+        <tr>
+            <td col-md-1>状态</td>
+            <td col-md-1>时间</td>
+            <td col-md-2>分类</td>
+            <td col-md-3>主题</td>
+            <td col-md-2>时间</td>
+            <td col-md-2>地点</td>
+            <td col-md-1>优先级</td>
+        </tr>
+        <tr v-for="(item, index) in list" :key="index" :id="index" :class="{ nowweek: item.ws }">
+            <td :class="{ activeb: (item.cs=='black'), activeg: (item.cs=='green'), activer: (item.cs=='red') }">{{item.status}}</td>
+            <td>{{item.time1}}</td>
+            <td>{{item.type}}</td>
+            <td>{{item.title}}</td>
+            <td>{{item.time2}}</td>
+            <td>{{item.position}}</td>
+            <td>{{item.ysj}}</td>
+        </tr>
+    </table>
+</div>
+
+
+
+<style>
+    .nowweek {
+        background-color: #fcf8e3;
+    }
+
+    .activeb {
+        color: black;
+    }
+
+    .activer {
+        color: red;
+    }
+
+    .activeg {
+        color: #6cc149;
+    }
+
+    .row {
+        margin-top: -1px;
+        margin-right: -1px;
+        margin-left: -1px;
+    }
+
+    #lastw, #nextw {
+        width: 100px;
+        text-align: center;
+        border: 1px solid #bbbbbb;
+        font-size: 18px;
+    }
+
+    #nextw {
+        float: right;
+    }
+
+    tr, td {
+        text-align: center;
+    }
+
+    .week {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #h_week {
+        text-align: center;
+    }
+</style>
+<script>
+    var c =0;
+    new Vue({
+        el: '#app',
+        data: {
+            week: '8',
+            list: [{
+                ws:false,
+                cs:'red',
+                status: '已完成',
+                time1: '周一',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {ws:false,cs:'black',
+                status: '正在进行',
+                time1: '周一',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {ws:false,cs:'black',
+                status: '新增',
+                time1: '周一',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {ws:false,cs:'black',
+                status: '已完成',
+                time1: '周二',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {
+                ws: false, cs: 'black',
+                status: '已完成',
+                time1: '周二',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {ws:false,cs:'black',
+                status: '已完成',
+                time1: '周三',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {ws:false,cs:'black',
+                status: '调整',
+                time1: '周四',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {   ws:false,
+                cs:'black',
+                status: '已完成',
+                time1: '周五',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {
+                ws: false,
+                cs: 'black',
+                status: '已完成',
+                time1: '周五',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            }],
+        },
+        created() {
+            var str = "周" + "日一二三四五六".charAt(new Date().getDay());
+            var w = this.list[0].time1
+            var len = this.list.length
+            for (var i = 0; i < len; i++) {
+                
+
+                if(this.list[i].status == '调整'){
+                    this.list[i].cs = 'green'
+                } else if((this.list[i].status == '正在进行' ||this.list[i].status == '新增')) {
+                    this.list[i].cs = 'red'
+                }else {
+                    this.list[i].cs = 'black'
+                }
+                if(this.list[i].time1 == str){
+                    this.list[i].ws = true
+                }else{
+                    this.list[i].ws = false
+                }
+                
+                //if (this.list[i].time1 == '周一') {
+                //    c++
+                //}
+                console.log(c)
+            }
+          
+        },
+        methods: {}
+    })
+
+    var w = $('#0').children().eq(1).text();
+    var rows = document.getElementById('GZtable').rows;
+    for (var i = 1; i < rows.length - 1; i++) {
+        if ($('#' + i).children().eq(1).text() != w) {
+            w = $('#' + i).children().eq(1).text()
+        } else {
+            c++
+        }
+
+    }
+    if (c != 1) {
+        $('#0').children().eq(1).attr("rowspan", c);
+        for (var i = 2; i <= c; i++) {
+ 
+            $('#'+ (i-1)).children().eq(1).remove();
+        }
+    }
+    
+    $("#GZtable>tr:nth-child(2)>td:nth-child(2)").attr("rowspan", c);
+</script>

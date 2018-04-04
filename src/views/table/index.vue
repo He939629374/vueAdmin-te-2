@@ -424,7 +424,8 @@ selectedOptions2: [],
         var qs = require('qs') // 处理post内容格式
         axios.post('http://127.0.0.1:3000/upstatus', qs.stringify({
           status: status,
-          id: row.ID
+          id: row.ID,
+          exauthor:row.author
         }))
           .then(function(response) {
             console.log(response.data[0])

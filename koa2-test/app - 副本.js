@@ -243,7 +243,7 @@ async function gethandle(que) {
 
 //获取已办
 async function Getdone(field) {	
-  let sql = "select * from  list  where exauthor like '%" + field.exauthor + "%'" 
+  let sql = "select * from  list  where exauthor='" + field.exauthor + "'"
   console.log(sql)
   let dataList = await query( sql )
   var d1=JSON.parse(dataList)
@@ -262,11 +262,11 @@ async function getdone(que) {
 async function Upstatus(field) {
 	console.log(field)
   let sql = 'update list set status=' +"'" + field.status + "'" +' where id=' +"'" + field.id +"'" 
-  let sql2 = "update list set exauthor=CONCAT(exauthor,'," + field.exauthor + "') where ID=" + field.id  + " and exauthor not like '%" + field.exauthor + "%'" 
+  let sql2 = "update list set exauthor=CONCAT(exauthor,'," + field.exauthor + "') where ID=" + field.id  + "and exauthor not like '% " + field.exauthor + "%'" 
   console.log('sql:' + sql )
   console.log('sql2:' + sql2 )
   let dataList = await query( sql )
-  let dataList2 = await query( sql2 )
+  let dataList = await query( sql2 )
   //console.log('selectAllData:' + dataList )
   return dataList
 }
