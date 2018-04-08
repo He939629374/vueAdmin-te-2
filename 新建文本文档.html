@@ -1,25 +1,29 @@
-
-@{
-    ViewBag.Title = "WeekPC";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-
+<body>
+    <!-- 新 Bootstrap4 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+ 
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+ 
+<!-- popper.min.js 用于弹窗、提示、下拉菜单 -->
+<script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+ 
+<!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+<script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.8/vue.min.js"></script>
 <div id="app">
     <div class="row">
         <div id="lastw" class="col-md-2">上一周</div>
         <div class="col-md-8"></div>
         <div id="nextw" class="col-md-2">下一周</div>
     </div>
-    <div class="week">
-        <h2 id="h_week" class="page-header">第{{week}}周工作安排</h2>
-    </div>
     <table id="GZtable" class="table table-bordered,table table-hover">
+        <tr><td id="h_week" colspan="7">第{{week}}周工作安排</td></tr>
         <tr>
             <td col-md-1>状态</td>
             <td col-md-1>时间</td>
-            <td col-md-2>分类</td>
-            <td col-md-3>主题</td>
+            <td col-md-1>分类</td>
+            <td col-md-4>主题</td>
             <td col-md-2>时间</td>
             <td col-md-2>地点</td>
             <td col-md-1>优先级</td>
@@ -39,6 +43,16 @@
 
 
 <style>
+    .table td, .table th {
+        padding: .75rem;
+        vertical-align: top;
+        border: 2px solid black;
+    }
+    .t_table{
+        border: 1px solid #e9ecef;
+        background-color: antiquewhite;
+     
+    }
     .nowweek {
         background-color: #fcf8e3;
     }
@@ -60,14 +74,36 @@
         margin-right: -1px;
         margin-left: -1px;
     }
-
     #lastw, #nextw {
-        width: 100px;
+        background-color: hsla(78, 43%, 82%, 1);
+        border-top: 2px solid #000000;
+        border-left: 2px solid #000000;
+        border-right: 2px solid #000000;
+        color: #000000;
+        padding: 10px;
         text-align: center;
-        border: 1px solid #bbbbbb;
-        font-size: 18px;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 17px;
     }
-
+    #lastw:hover {
+        background-color: #4CAF50; /* Green */
+        color: white;
+    }
+    #nextw:hover {
+        background-color: #4CAF50; /* Green */
+        color: white;
+    }
+    #lastw:active {
+        background-color: #3e8e41;
+        box-shadow: 0 -1px #666;
+        transform: translateY(2px);
+    }
+    #nextw:active {
+        background-color: #3e8e41;
+        box-shadow: 0 -1px #666;
+        transform: translateY(2px);
+    }
     #nextw {
         float: right;
     }
@@ -76,17 +112,12 @@
         text-align: center;
     }
 
-    .week {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
     #h_week {
-        text-align: center;
+        font-size: 32px;
     }
 </style>
 <script>
-    var c =0;
+    var c =1;
     new Vue({
         el: '#app',
         data: {
@@ -97,9 +128,9 @@
                 status: '已完成',
                 time1: '周一',
                 type: '市级会议活动',
-                title: '科技会',
-                time2: '9:00',
-                position: '地点',
+                title: '市级会议活动科技会',
+                time2: '9:00到11:00',
+                position: '703会议室',
                 yxj: ''
             },
             {ws:false,cs:'black',
@@ -149,6 +180,26 @@
                 yxj: ''
             },
             {ws:false,cs:'black',
+                status: '已完成',
+                time1: '周三',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            {ws:false,cs:'black',
+                status: '已完成',
+                time1: '周三',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
+            },
+            
+            
+            {ws:false,cs:'black',
                 status: '调整',
                 time1: '周四',
                 type: '市级会议活动',
@@ -177,6 +228,17 @@
                 time2: '9:00',
                 position: '地点',
                 yxj: ''
+            },
+            {
+                ws: false,
+                cs: 'black',
+                status: '已完成',
+                time1: '周五',
+                type: '市级会议活动',
+                title: '科技会',
+                time2: '9:00',
+                position: '地点',
+                yxj: ''
             }],
         },
         created() {
@@ -184,8 +246,6 @@
             var w = this.list[0].time1
             var len = this.list.length
             for (var i = 0; i < len; i++) {
-                
-
                 if(this.list[i].status == '调整'){
                     this.list[i].cs = 'green'
                 } else if((this.list[i].status == '正在进行' ||this.list[i].status == '新增')) {
@@ -210,22 +270,30 @@
     })
 
     var w = $('#0').children().eq(1).text();
+    
+    var fw = 0
     var rows = document.getElementById('GZtable').rows;
     for (var i = 1; i < rows.length - 1; i++) {
-        if ($('#' + i).children().eq(1).text() != w) {
+        if ($('#' + i).children().eq(1).text() != w) {            
             w = $('#' + i).children().eq(1).text()
+    if (c != 1) {
+        $('#' + fw).children().eq(1).attr("rowspan", c).css("vertical-align","middle",).addClass("t_table");
+        console.log("移除的ID:" + ('#' + (fw+1)))
+        for (var j = 1; j < c; j++) {
+            $('#' + (fw +j)).children().eq(1).remove();
+        }
+    }
+        fw = i
+        c=1
         } else {
             c++
-        }
-
-    }
-    if (c != 1) {
-        $('#0').children().eq(1).attr("rowspan", c);
-        for (var i = 2; i <= c; i++) {
- 
-            $('#'+ (i-1)).children().eq(1).remove();
+            if(i == (rows.length - 2)){
+                $('#' + fw).children().eq(1).attr("rowspan", c).css("vertical-align","middle").addClass("t_table");
+            for (var j = 1; j < c; j++) {
+                $('#' + (fw +j)).children().eq(1).remove();
+            }
+            }
         }
     }
-    
-    $("#GZtable>tr:nth-child(2)>td:nth-child(2)").attr("rowspan", c);
 </script>
+</body>
