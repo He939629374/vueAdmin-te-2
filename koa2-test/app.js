@@ -278,7 +278,29 @@ async function upstatus(que) {
 
 }
 
+//获取权限表
+async function Getper() {	
+  let sql = "select * from  login  " 
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Getper:' + dataList )
+  return (d1)
+}
+async function getper() {
+	let dataList = await Getper()
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+  
+}
+
 router
+  .get('/getper',async (ctx,next) => {
+  console.log(ctx.query);
+  ctx.body =await getper() 
+  //console.log(ctx.body);
+  })
   .get('/query',async (ctx,next) => {
   console.log(ctx.query.password);
   console.log(ctx.querystring);

@@ -13,12 +13,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.8/vue.min.js"></script>
 <div id="app">
     <div class="row">
-        <div id="lastw" class="col-md-2">上一周</div>
+        <div id="lastw" class="col-md-2" v-on:click="lclick">上一周</div>
         <div class="col-md-8"></div>
-        <div id="nextw" class="col-md-2">下一周</div>
+        <div id="nextw" class="col-md-2" v-on:click="nclick">下一周</div>
     </div>
     <table id="GZtable" class="table table-bordered,table table-hover">
-        <tr><td id="h_week" colspan="7">第{{week}}周工作安排</td></tr>
+        <tr>
+            <td id="h_week" colspan="7">第{{week}}周工作安排</td>
+        </tr>
         <tr>
             <td col-md-1>状态</td>
             <td col-md-1>时间</td>
@@ -28,14 +30,39 @@
             <td col-md-2>地点</td>
             <td col-md-1>优先级</td>
         </tr>
-        <tr v-for="(item, index) in list" :key="index" :id="index" :class="{ nowweek: item.ws }">
+        <tr v-if="ZWSJ">
+            <td  colspan="7">暂无数据</td>
+        </tr>
+        <tr v-for="(item, index) in list" :key="index" :id="index" :class="{ nowweek: item.ws}" >
             <td :class="{ activeb: (item.cs=='black'), activeg: (item.cs=='green'), activer: (item.cs=='red') }">{{item.status}}</td>
-            <td>{{item.time1}}</td>
-            <td>{{item.type}}</td>
-            <td>{{item.title}}</td>
-            <td>{{item.time2}}</td>
-            <td>{{item.position}}</td>
-            <td>{{item.ysj}}</td>
+            <td>{{item.time}}</td>
+            <td>{{item.TYPE}}</td>
+            <td>{{item.HDZT}}</td>
+            <td>{{item.KSSJ}}-{{item.JSSJ}}</td>
+            <td>{{item.HDCD}}</td>
+            <td :class="{t_YXJ1: (item.YXJcs=='t_YXJ1'),t_YXJ2: (item.YXJcs==='t_YXJ2'),t_YXJ3: (item.YXJcs==='t_YXJ3')}">{{item.YXJ}}</td>
+        </tr>
+    </table>
+    <table id="GZJH" class="table table-bordered,table table-hover">
+        <tr>
+            <td id="jh_week" colspan="5">
+                工作计划
+            </td>
+        </tr>
+        <tr>
+            <td col-md-2>时间</td>
+            <td col-md-1>分类</td>
+            <td col-md-5>主题</td>
+            <td col-md-2>地点</td>
+        </tr>
+        <tr v-if="ZWSJ2">
+            <td colspan="7">暂无数据</td>
+        </tr>
+        <tr v-for="(itemb, index) in listb" :key="index" :id="index" :class="{ nowweek: itemb.ws }">
+            <td>第{{itemb.KSZ}}至{{itemb.JSZ}}周</td>
+            <td>{{itemb.EJLX}}</td>
+            <td>{{itemb.GZHDZT}}</td>
+            <td>{{itemb.HDDD}}</td>
         </tr>
     </table>
 </div>
@@ -43,15 +70,27 @@
 
 
 <style>
+    .table {
+        margin-bottom:0px;
+    }
     .table td, .table th {
         padding: .75rem;
         vertical-align: top;
         border: 2px solid black;
     }
-    .t_table{
+
+    .t_table {
         border: 1px solid #e9ecef;
         background-color: antiquewhite;
-     
+    }
+    .t_YXJ1 {
+        background-color: red;
+    }
+    .t_YXJ2 {
+        background-color: orange;
+    }
+    .t_YXJ3 {
+        background-color: greenyellow;
     }
     .nowweek {
         background-color: #fcf8e3;
@@ -74,6 +113,7 @@
         margin-right: -1px;
         margin-left: -1px;
     }
+
     #lastw, #nextw {
         background-color: hsla(78, 43%, 82%, 1);
         border-top: 2px solid #000000;
@@ -86,24 +126,29 @@
         display: inline-block;
         font-size: 17px;
     }
-    #lastw:hover {
-        background-color: #4CAF50; /* Green */
-        color: white;
-    }
-    #nextw:hover {
-        background-color: #4CAF50; /* Green */
-        color: white;
-    }
-    #lastw:active {
-        background-color: #3e8e41;
-        box-shadow: 0 -1px #666;
-        transform: translateY(2px);
-    }
-    #nextw:active {
-        background-color: #3e8e41;
-        box-shadow: 0 -1px #666;
-        transform: translateY(2px);
-    }
+
+        #lastw:hover {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
+        #nextw:hover {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
+        #lastw:active {
+            background-color: #3e8e41;
+            box-shadow: 0 -1px #666;
+            transform: translateY(2px);
+        }
+
+        #nextw:active {
+            background-color: #3e8e41;
+            box-shadow: 0 -1px #666;
+            transform: translateY(2px);
+        }
+
     #nextw {
         float: right;
     }
@@ -111,12 +156,235 @@
     tr, td {
         text-align: center;
     }
-
+    #jh_week {
+        font-size: 32px;
+        border-left: 2px solid black;
+        border-right: 2px solid black;
+    }
     #h_week {
         font-size: 32px;
+        border: 2px solid black;
     }
 </style>
 <script>
+    var c = 1;
+    new Vue({
+        el: '#app',
+        data: {
+            ZWSJ:false,
+            ZWSJ2:false,
+            activeClass:'',
+            dtime:'',
+            listb:[],
+            week: '8',
+            list: [],
+            list3: [],
+        },
+        created() {
+            this.week = @Request.QueryString["week"];
+            this.fetch();
+        },
+        updated(){
+            if(this.list.length>=1){
+                this.check2();
+            }
+        },
+        methods: {
+            fetch() {
+                var self = this;
+                this.dtime = this.getXDate("2018", this.week, "0")
+                this.dtime2 = this.getXDate("2018", this.week, "6")
+                $.ajax({
+                    url: '@Href("~/")GZPC/Conget' + "?dtime=" + this.dtime + "&dtime2=" + this.dtime2 + "&week=" + this.week,
+                    type: 'post',
+                    success: function (res) {
+                        self.listb = res.ZDGZ
+                        self.list = res.RCGZ
+                        if(self.list.length>=1){
+                            self.ZWSJ = false
+                            for (var j = 0; j < res.RCGZ.length; j++) {
+                                let ww = res.RCGZ[j].KSSJ
+                                let w = ww.split(" ")
+                                let weekArray = new Array("周日", "周一", "周二", "周三", "周四", "周五", "周六");
+                                let week = weekArray[new Date(w).getDay()];// 
+                                self.list[j].time = week
+                            }
+                            self.check()
+                        }else{
+                            self.ZWSJ = true
+                        }
+                        if(self.listb.length>=1){
+                            self.ZWSJ2 = false
+                        }else{
+                            self.ZWSJ2 = true
+                        }
+                    }
+                });
+            },
+            lclick: function(){
+                this.dtime = this.getXDate("2018",this.week-1,"0")
+                this.week=this.week-1
+                this.fetch();
+            },
+            nclick: function(){
+                this.dtime = this.getXDate("2018",this.week+1,"0")
+                this.week=this.week+1
+                this.fetch();
+            },
+            check2(){
+                var w = $('#0').children().eq(1).text();
+                var fw = 0;//首个原ID
+                var rows = document.getElementById('GZtable').rows;
+                for (var i = 1; i < rows.length - 1; i++) {
+                    if ($('#' + i).children().eq(1).text() != w) {
+                        w = $('#' + i).children().eq(1).text()
+                        if (c != 1) {
+                            $('#' + fw).children().eq(1).attr("rowspan", c).css("vertical-align", "middle").addClass("t_table");
+                            //("移除的ID:" + ('#' + (fw + 1)))
+                            for (var j = 1; j < c; j++) {
+                                $('#' + (fw + j)).children().eq(1).remove();//要移除的内容
+                            }
+                        }
+                        fw = i //原ID改变
+                        c = 1 //行数归1
+                    } else {
+                        c++
+                        if (i == (rows.length - 2)) {
+                            $('#' + fw).children().eq(1).attr("rowspan", c).css("vertical-align", "middle").addClass("t_table");
+                            for (var j = 1; j < c; j++) {
+                                $('#' + (fw + j)).children().eq(1).remove();
+                            }
+                        }
+                    }
+                }
+            },
+            check() {
+                var str = "周" + "日一二三四五六".charAt(new Date().getDay());
+                var len = this.list.length 
+                var self = this
+                var bubbleSort=function(arr){  
+                    for(var i=0;i<arr.length-1;i++){                      
+                        for(var j=i+1;j<arr.length;j++){  
+                            var KSJ = self.list[i].KSSJ.split(" ")
+                            var k =new Date(KSJ).getTime()
+                            var LSJ = self.list[j].KSSJ.split(" ")
+                            var L =new Date(LSJ).getTime()
+                            if(k>L){//如果前面的数据比后面的大就交换  
+                                var temp=self.list[i];  
+                                self.list[i]=self.list[j];  
+                                self.list[j]=temp;  
+                            }   
+                        }  
+                    }   
+                    return arr;  
+                }  
+                this.list = (bubbleSort(this.list))
+                for (var i = 0; i < len; i++) {
+                    var KSJ = this.list[i].KSSJ.split(" ")
+                    var JSJ = this.list[i].JSSJ.split(" ")
+                    //var myDate = new Date().toLocaleString()
+                    //var LSJ = myDate.replace(/下午/g, '').split(" ");
+                    var myDate=new Date().getTime()
+                    var LSJ = myDate;
+                    //console.log('myDate:'+myDate)
+                    //console.log('KSJ:'+new Date(KSJ).getTime())
+                    //console.log('JSJ:'+new Date(JSJ).getTime())
+                    //console.log('LSJ:'+new Date(LSJ).getTime())
+                    if(this.list[i].YXJ == '1'){
+                        this.list[i].YXJcs = 't_YXJ1'
+                    }else if(this.list[i].YXJ == '2'){
+                        this.list[i].YXJcs = 't_YXJ2'
+                    }else{
+                        this.list[i].YXJcs = 't_YXJ3'
+                    }
+                    if (new Date(JSJ).getTime() < new Date(LSJ).getTime()) {
+                              this.list[i].cs = 'green'
+                              this.list[i].status = '已完成'
+                    } else if (new Date(KSJ).getTime() < new Date(LSJ).getTime() && new Date(JSJ).getTime() > new Date(LSJ).getTime()) {
+                              this.list[i].cs = 'red'
+                              this.list[i].status = '正在进行'
+                      } else {
+                              this.list[i].cs = 'black'
+                              this.list[i].status = '未完成'
+                      }
+                    if (this.list[i].time == str) {
+                        this.list[i].ws = true
+                    } else {
+                        this.list[i].ws = false
+                    }
+                }
+            },
+            getXDate(year,weeks,weekDay){ 
+                // 用指定的年构造一个日期对象，并将日期设置成这个年的1月1日 
+                // 因为计算机中的月份是从0开始的,所以有如下的构造方法 
+                var date = new Date(year,"0","1"); 
+
+                // 取得这个日期对象 date 的长整形时间 time 
+                var time = date.getTime(); 
+                // 将这个长整形时间加上第N周的时间偏移 
+                // 因为第一周就是当前周,所以有:weeks-1,以此类推 
+                // 7*24*3600000 是一星期的时间毫秒数,(JS中的日期精确到毫秒) 
+                time+=(weeks-1)*7*24*3600000; 
+                // 为日期对象 date 重新设置成时间 time 
+                date.setTime(time); 
+                return this.getNextDate(date,weekDay); 
+            },
+            getNextDate(nowDate,weekDay){ 
+                //0是星期一,... 
+                var time = nowDate.getTime(); 
+                time+=weekDay*24*3600000;
+                nowDate.setTime(time);
+                var d = "0"+nowDate.getDate();
+                var y = 1900+nowDate.getYear();
+                var m = "0"+(nowDate.getMonth()+1);
+                return y+"-"+m.substring(m.length-2,m.length)+"-"+d.substring(d.length-2,d.length);
+                return nowDate; 
+            },
+             weekOfYear(year, month, day){   //所给日期第几周
+                //   year       年   
+                //   month     月   
+                //   day         日   
+                //   每周从周日开始   
+                var   date1   =   new   Date(year,   0,   1);   
+                var   date2   =   new   Date(year,   month-1,   day,   1);   
+                var   dayMS   =   24*60*60*1000;   
+                var   firstDay   =   (7-date1.getDay())*dayMS;   
+                var   weekMS   =   7*dayMS;   
+                date1   =   date1.getTime();   
+                date2   =   date2.getTime();   
+                var a=Math.ceil((date2-date1-firstDay)/weekMS)+1;   
+                var getYearWeek = function (a, b, c) {//所给日期第几周 方法二
+                    //date1是当前日期
+                    //date2是当年第一天
+                    //d是当前日期是今年第多少天
+                    //用d + 当前年的第一天的周差距的和在除以7就是本年第几周
+                    var date1 = new Date(a, parseInt(b) - 1, c), date2 = new Date(a, 0, 1),
+                        d = Math.round((date1.valueOf() - date2.valueOf()) / 86400000);
+                    return Math.ceil((d + ((date2.getDay() + 1) - 1)) / 7);
+                };
+                var weekArray = new Array("周日", "周一", "周二", "周三", "周四", "周五", "周六");
+                var week = weekArray[new Date("2018/04/09").getDay()];// 
+                return ("第"+a+"周")
+                },
+             getWeekOfYear(){ //本周第几周
+                 var today = new Date();
+                var firstDay = new Date(today.getFullYear(),0, 1);
+                var dayOfWeek = firstDay.getDay(); 
+                var spendDay= 1;
+                if (dayOfWeek !=0) {
+                    spendDay=7-dayOfWeek+1;
+                }
+                firstDay = new Date(today.getFullYear(),0, 1+spendDay);
+                var d =Math.ceil((today.valueOf()- firstDay.valueOf())/ 86400000);
+                var result =Math.ceil(d/7);
+                console.log("本周：" + (result+1))
+            }
+        }
+    })
+    
+
+
+</script>
     var c =1;
     new Vue({
         el: '#app',
