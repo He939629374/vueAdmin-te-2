@@ -1,0 +1,163 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
+using FSUGIC.Toolkit.Data.DBUtility;
+
+namespace ZWGZWeb.Controllers
+{
+    public class GZPCController : Controller
+    {
+        public ActionResult SwitchFrame()
+        {
+            return View();
+        }
+        public ActionResult MonthPC()
+        {
+            string month = HttpContext.Request["month"].ToString();
+            SQLHelperBase dbhelper = new SQLHelperBase("ZWFZXT");
+            string sql = string.Format("  select *,CONVERT(varchar(10),KSRQ,23) KSRQ2,CONVERT(varchar(10),JSRQ,23) JSRQ2 from BS_ZDGZDJB where datepart(year,KSRQ) = '" + DateTime.Now.Year + "' and '{0}' between datepart(month,KSRQ) and datepart(month,JSRQ) ", month);
+            string sql2 = string.Format("  select *,CONVERT(varchar(10),KSSJ,23) KSSJ2,CONVERT(varchar(10),JSSJ,23) JSSJ2 from BS_RCGZDJB where datepart(year,KSSJ) = '" + DateTime.Now.Year + "' and '{0}' between datepart(month,KSSJ) and datepart(month,JSSJ) and ISNULL(ZDGZID,0) <> 0 ", month);
+            DataTable dt = dbhelper.GetDataTable(sql);
+            DataTable dt2 = dbhelper.GetDataTable(sql2);
+            ViewData["monthJH"] = dt;
+            ViewData["monthSJ"] = dt2;
+            return View();
+        }
+        public ActionResult WeekPC()
+        {
+
+            return View();
+        }
+        public ActionResult Conget() {
+            try
+            {
+                string dtime = HttpContext.Request["dtime"].ToString();
+                string dtime2 = HttpContext.Request["dtime2"].ToString();
+                string week = HttpContext.Request["week"].ToString();
+                SQLHelperBase dbhelper = new SQLHelperBase("ZWFZXT");
+                string sql = "select ID,EJLX,GZHDZT,HDDD,KSZ,JSZ,KSRQ,JSRQ,YXJ from BS_ZDGZDJB where KSZ <= '"+ week+"'" + "and JSZ >= '" + week + "'";
+                string sql2 = string.Format("select a.ID,a.TYPE,a.HDZT,a.KSSJ,a.JSSJ,a.HDCD,b.YXJ from BS_RCGZDJB a,BS_ZDGZDJB  b where a.ZDGZID =b.ID and a.ZDGZID IS NOT NULL and  a.KSSJ between '{0}' and '{1}'", dtime,dtime2);
+                DataTable dt = dbhelper.GetDataTable(sql);
+                DataTable dt2 = dbhelper.GetDataTable(sql2);
+
+                List<List<string>> list = new List<List<string>>();
+                List<Dictionary<string, string>> listDict = new List<Dictionary<string, string>>();
+                List<Dictionary<string, string>> listDict2 = new List<Dictionary<string, string>>();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    List<string> list2 = new List<string>();
+                    Dictionary<string, string> dict = new Dictionary<string, string>();
+                    dict.Add("ID", dt.Rows[i][0].ToString());
+                    dict.Add("EJLX", dt.Rows[i][1].ToString());
+                    dict.Add("GZHDZT", dt.Rows[i][2].ToString());
+                    dict.Add("HDDD", dt.Rows[i][3].ToString());
+                    dict.Add("KSZ", dt.Rows[i][4].ToString());
+                    dict.Add("JSZ", dt.Rows[i][5].ToString());
+                    dict.Add("KSRQ", dt.Rows[i][6].ToString());
+                    dict.Add("JSRQ", dt.Rows[i][7].ToString());
+                    dict.Add("YXJ", dt.Rows[i][8].ToString());
+                    dict.Add("cs", "asd");
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        list2.Add(dt.Rows[i][j].ToString());
+                    }
+                    list.Add(list2);
+                    listDict.Add(dict);
+                }
+                for (int i = 0; i < dt2.Rows.Count; i++)
+                {
+                    //ID,TYPE,HDZT,KSSJ,JSSJ,HDCD
+                    Dictionary<string, string> dict2 = new Dictionary<string, string>();
+                    dict2.Add("ID", dt2.Rows[i][0].ToString());
+                    dict2.Add("TYPE", dt2.Rows[i][1].ToString());
+                    dict2.Add("HDZT", dt2.Rows[i][2].ToString());
+                    dict2.Add("KSSJ", dt2.Rows[i][3].ToString());
+                    dict2.Add("JSSJ", dt2.Rows[i][4].ToString());
+                    dict2.Add("HDCD", dt2.Rows[i][5].ToString());
+                    dict2.Add("YXJ", dt2.Rows[i][6].ToString());
+                    dict2.Add("cs", "");
+                    dict2.Add("YXJcs", "");
+                    listDict2.Add(dict2);
+                }
+                return Json(new { msg = "success",xx = list,ZDGZ= listDict,RCGZ = listDict2 });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { msg = ex });
+            }
+        }
+
+        public ActionResult SearchHYS()
+        {
+            string sql = "select * from HY_HYSSBB";
+            SQLHelperBase dbHelper = new SQLHelperBase("ZWFZXT");
+            DataTable dt = dbHelper.Query(sql).Tables[0];
+            List<string> list = new List<string>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                list.Add(dr["SBNAME"].ToString());
+            }
+            ViewBag.equipment = list;
+            return View();
+        }
+
+        public ActionResult SearchHYS1()
+        {
+            string sql = "select * from HY_HYSSBB";
+            SQLHelperBase dbHelper = new SQLHelperBase("ZWFZXT");
+            DataTable dt = dbHelper.Query(sql).Tables[0];
+            List<string> list = new List<string>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                list.Add(dr["SBNAME"].ToString());
+            }
+            ViewBag.equipment = list;
+            return View();
+        }
+
+        public ActionResult SearchHYS2()
+        {
+            string sql = "select * from HY_HYSSBB";
+            SQLHelperBase dbHelper = new SQLHelperBase("ZWFZXT");
+            DataTable dt = dbHelper.Query(sql).Tables[0];
+            List<string> list = new List<string>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                list.Add(dr["SBNAME"].ToString());
+            }
+            ViewBag.equipment = list;
+            return View();
+        }
+
+        public ActionResult FL(string usercode)
+        {
+            string userName = "";
+            if (!string.IsNullOrWhiteSpace(usercode))
+            {
+                string sql = "select UserName from [DLUser].[dbo].[T_DA_User] where UserCode ='" + usercode + "'";
+                SQLHelperBase dbHelper = new SQLHelperBase("ZWFZXT");
+                userName = dbHelper.GetSingle(sql).ToString();
+            }
+            ViewBag.userName = userName;
+            return View();
+        }
+
+        public ActionResult SwitchFrame1()
+        {
+            return View();
+        }
+
+        //会议室日程
+        public ActionResult Meetings()
+        {
+            return View();
+        }
+
+    }
+}
