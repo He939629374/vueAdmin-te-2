@@ -77,7 +77,10 @@
       <el-input v-model="temp.title" placeholder="请填写任务名称"></el-input>
     </el-form-item>
     <el-form-item label="处理人">
-      <el-input v-model="temp.author" placeholder="请填写处理人"></el-input>
+      <el-select v-model="temp.author" placeholder="请填写处理人">
+        <el-option v-for="item in  authorOptions" :value="item">
+        </el-option>
+      </el-select>
     </el-form-item>
     <el-form-item label="考察点">
       <el-select v-model="temp.pageviews" placeholder="请选择考察点">
@@ -125,11 +128,11 @@
 import myQ from '@/views/table/work.vue'
 import myQ2 from '@/components/Options.vue'
 import axios from 'axios'
-// const ValID = ''
 export default {
   data() {
     return {
       ValID:[],
+      Valtitle:[],
       alllist:[],
 selectedOptions2: [],
         options: [{
@@ -173,6 +176,7 @@ selectedOptions2: [],
         pageviews: '',
         ID: ''
       },
+      authorOptions:[],
       pageviewsOptions: ['南海', '禅城', '顺德'],
       statusOptions: ['published', 'draft', 'deleted'],
       dialogTableVisible: false,
@@ -225,9 +229,9 @@ selectedOptions2: [],
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        'published': 'success',
+        'draft': 'info',
+        'deleted': 'danger'
       }
       return statusMap[status]
     }
@@ -292,6 +296,7 @@ selectedOptions2: [],
       var self = this
       axios.get('http://127.0.0.1:3000/list' + '?limit=' + this.listQuery.limit)
         .then(function(response) {
+          console.log(response.data)
           self.total = response.data[1][0].len
           // self.list = [].concat.apply([], response.data)
           self.list = response.data[0]
@@ -299,6 +304,15 @@ selectedOptions2: [],
         }).catch(function(error) {
           console.log(error)
         })
+      axios.get('http://127.0.0.1:3000/getper')
+        .then(function(response) {
+          for(let i =0;i<response.data.length;i++){
+            self.authorOptions.push(response.data[i].user_name)
+          }         
+        }).catch(function(error) {
+          console.log(error)
+        })
+        this.listQuery.page= 1
     },
     searchData() {
       this.listLoading = true
@@ -311,6 +325,7 @@ selectedOptions2: [],
         this.listQuery.pageviews +  '&ID=' + 
         this.listQuery.ID )
         .then(function(response) {
+          console.log(response.data[0])
           self.total = response.data[1][0].len 
           self.list = response.data[0]
           // console.log(self.list)
@@ -336,13 +351,13 @@ selectedOptions2: [],
       this.listQuery.page = val
       this.searchData()
     },
-    handleCurrentChange1(val) {
-      let l = val.length
-      this.ValID = []
-      for(var i=0; i<l; i++){
+    handleCurrentChange1(val) { 
+      this.ValID = [] 
+      this.Valtitle = [] 
+      for(let i =0;i<val.length;i++){
         this.ValID.push(val[i].ID)
-      }
-      console.log("this:"+ this.ValID)
+        this.Valtitle.push(val[i].title)     
+      } 
     },
     resetTemp() {
       this.temp = {
@@ -351,7 +366,7 @@ selectedOptions2: [],
         pageviews: '南海',
         display_time: new Date(),
         title: '',
-        status: 'published'
+        status: 'draft'
       }
     },
     handleCreate() {
@@ -369,24 +384,46 @@ selectedOptions2: [],
     DelayData() {
       var self = this
       var qs = require('qs') // 处理post内容格式
-      alert(self.ValID)
-      axios.post('http://127.0.0.1:3000/delList', qs.stringify({
-        id: self.ValID
-      }))
-        .then(function(response) {
-          console.log(response.data[0])
-          self.fetchData()
-          self.listLoading = false
-        }).catch(function(error) {
-          console.log(error)
-        })
+      if(this.ValID ==''){
+        self.$message({
+          showClose: true,
+          message: '请选择删除的任务',
+          type: 'error'
+        });
+      }else{
+        self.$confirm('此操作将永久删除任务:'+self.Valtitle+' , 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          axios.post('http://127.0.0.1:3000/delList', qs.stringify({
+            id: self.ValID
+          }))
+            .then(function(response) {
+              console.log(response.data[0])
+              self.fetchData()
+              self.listLoading = false
+            }).catch(function(error) {
+              console.log(error)
+            })
+          self.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+      }
       this.dialogTableVisible = false // loading层关闭
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
+      // this.$notify({
+      //   title: '成功',
+      //   message: '删除成功',
+      //   type: 'success',
+      //   duration: 2000
+      // })
     },
     createData() {
       this.$refs['dataForm'].validate((valid) => {
@@ -447,18 +484,22 @@ selectedOptions2: [],
       var self = this
       for(var i=0; i<arguments.length; i++){
         var b = arguments[i]
-      let a = b.length
+      let a = b.length   
       for(var j=0; j<a; j++){
           self.alllist.push(b[j])
-      }   
-      }    
+      }  
+      }  
+      if(self.alllist.length ==0){
+        self.alllist.push({msg:'null'})
+      } 
     },
     opendialog(index,ID) {
+      console.log(this.listQuery.page)
       this.listQuery2=[]
       this.liswork=[]
       this.checkwork=[]
       this.Askwork=[]
-      console.log(ID)
+      
       this.queindex = ID
       var self = this
         axios.get('http://127.0.0.1:3000/gethandle' + '?ID=' + ID)
@@ -487,7 +528,6 @@ selectedOptions2: [],
           } else {
             this.dialogMyqVisible = true
           }
-
     },
     handleEdit(index, row) {
       console.log(row.ID)

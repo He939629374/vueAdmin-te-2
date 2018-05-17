@@ -40,7 +40,7 @@
           <span class="link-type" @click="opendialog(scope.$index, scope.row.ID)">{{scope.row.title}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="处理人" width="110" align="center">
+      <el-table-column label="当前处理人" width="110" align="center">
         <template slot-scope="scope">
           <span>{{scope.row.author}}</span>
         </template>
@@ -135,8 +135,8 @@ export default {
       var self = this
       axios.get('http://127.0.0.1:3000/getdone' + '?exauthor=' + localStorage.username)
         .then(function(response) {
-          console.log(response.data[0])
-          //self.total = response.data[1][0].len
+          console.log(response.data.length)
+          self.total = response.data.length
           // self.list = [].concat.apply([], response.data)
           self.list = response.data
           // console.log(self.list)
@@ -149,13 +149,12 @@ export default {
       this.listLoading = true
       var self = this
       axios.get('http://127.0.0.1:3000/search' + '?limit=' +
-        this.listQuery.limit + '&status=' +
+        this.listQuery.limit + '&limit2=' +
+        this.listQuery.page + '&status=' +
         this.listQuery.status + '&title=' +
         this.listQuery.title + '&pageviews=' +
         this.listQuery.pageviews)
         .then(function(response) {
-          console.log(response.data[0][0].ID)
-          console.log(response.data[1])
           self.total = response.data[1][0].len
           // self.list = [].concat.apply([], response.data)
           self.list = response.data[0]

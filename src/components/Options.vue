@@ -2,7 +2,7 @@
   <div>
     <div>
       <div v-for="(item,index) in list" :key='index' > 
-        <textarea v-model="item.title" @click="aa" class="active"></textarea>
+        <textarea v-model="item.title"  class="active"></textarea>
         <el-button @click="del(list,index)" v-if="isdel">删除</el-button>
         <el-radio v-model="item.radio" label="1" :disabled="isinput">是</el-radio>
         <el-radio v-model="item.radio" label="0" :disabled="isinput">否</el-radio>
@@ -10,7 +10,7 @@
     </div>
       <div>
       <div v-for="(item,index) in lis" :key='index'>
-        <textarea v-model="item.title" @click="aa" class="active"></textarea>
+        <textarea v-model="item.title"  class="active"></textarea>
         <el-button @click="del(lis,index)" v-if="isdel">删除</el-button>
         <el-rate
         :disabled="isinput"
@@ -23,7 +23,7 @@
 
       <div>
       <div v-for="(item,index) in checkQuery" :key='index'>
-        <textarea v-model="item.title" @click="aa" class="active"></textarea>
+        <textarea v-model="item.title"  class="active"></textarea>
         <el-button @click="del(checkQuery,index)" v-if="isdel">删除</el-button>
         <div>
           <el-checkbox-group v-model="checkQuery[index].radio">
@@ -35,7 +35,7 @@
 
       <div>
       <div v-for="(item,index) in AskQuery" :key='index'>
-        <textarea v-model="item.title" @click="aa" class="active"></textarea>
+        <textarea v-model="item.title"  class="active"></textarea>
         <el-button @click="del(AskQuery,index)" v-if="isdel">删除</el-button>
         <el-input
           type="textarea"
@@ -58,9 +58,7 @@
     },
     props: ['list', 'lis', 'checkQuery', 'AskQuery','isdel','isinput'],
     methods: {
-      aa(a) {
-        console.log(a)
-      },
+
       handleCreate() {
       },
       confirmedit(index) {
@@ -78,7 +76,6 @@
   padding: 7px 5px;
 } */
 .active{
-  width: 100%;
   margin-top: 10px;
   display: block;
   border-width: 0px;

@@ -55,7 +55,7 @@ export const constantRouterMap = [
         path: 'tree',
         name: 'Tree',
         component: () => import('@/views/tree/index'),
-        meta: { title: '列表树', icon: 'tree' }
+        meta: { title: '用户管理', icon: 'tree' }
       },
       {
         path: 'work',
@@ -86,7 +86,7 @@ export const constantRouterMap = [
         path: 'index',
         name: 'Form',
         component: () => import('@/views/form/index'),
-        meta: { title: '个人中心', icon: 'form' }
+        meta: { title: '个人中心', icon: 'form',role: ['admin','super_editor'] }
       }
     ]
   },
@@ -96,7 +96,21 @@ export const constantRouterMap = [
 
 export default new Router({
   // mode: 'history', //后端支持可开
-  scrollBehavior: () => ({ y: 0 }),
+//  scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
-
+export const asyncRouterMap = [
+  {
+    path: '/form',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Form',
+        component: () => import('@/views/form/index'),
+        meta: { title: '个人中心', icon: 'form',role: ['admin','super_editor'] }
+      }
+    ]
+  },
+  { path: '*', redirect: '/404', hidden: true }
+];

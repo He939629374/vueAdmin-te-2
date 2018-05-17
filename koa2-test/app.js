@@ -47,7 +47,7 @@ let query = function(sql, args) {
       } )
 }
 async function selectAllData(que ) {
-  let sql = 'SELECT password FROM login where user_name = ' +'"'+que+'"'
+  let sql = 'SELECT password,id,imageUrl FROM login where user_name = ' +'"'+que+'"'
   let dataList = await query( sql )
   console.log('selectAllData:' + dataList )
   return dataList
@@ -57,7 +57,7 @@ async function getData(que,pas) {
   var a = JSON.parse(dataList)
   //console.log('getData():'+ a[0].password )
   if(pas == a[0].password){
-	  return ('200')
+	  return ({ID:a[0].id,imageUrl:a[0].imageUrl})
   } else return  ('400')
 }
 function extend(target, source) {
@@ -179,23 +179,31 @@ async function upList(que) {
 
 //新增题目
 async function Addques(field) {
-	console.log('result:'+field.alllist.length)
+	console.log('result:'+field.alllist[0].msg)
 	let sql =''
 	let sql2 =''
 	var sql3 = "DELETE FROM question WHERE caseid='" + field.qindex + "'"
 	var dataList3 = await query( sql3 )
+	if(field.alllist[0].msg){
+		sql2 ="update list set status='published' where ID=' " +field.qindex+"'"
+		console.log('sql2:' + sql2 )
+		var dataList2 = await query( sql2 )
+		return dataList2
+	}else{
 	for(var i=0; i<field.alllist.length; i++){
 		//let sql2 = "DELETE FROM question WHERE caseid='" + field.id[i] + "';" 
 		sql = 'INSERT INTO question ( title,type,radio,selfid,caseid,ceck ) VALUES '+" ( '" +
 		field.alllist[i].title + "','"+ field.alllist[i].type + "','" +field.alllist[i].radio + "','" +field.alllist[i].selfid + "','" + field.qindex + "','" + field.alllist[i].ceck + "' )"
-		sql2 ="update list set status='published' where ID=' " +field.qindex+"'"
+		
 		console.log('sql:' + sql )
-		console.log('sql2:' + sql2 )
+		
 		var dataList = await query( sql )
-		var dataList2 = await query( sql2 )
+		
 	}
   // console.log('selectAllData:' + dataList )
     return dataList
+	}
+
 }
 async function addques(que) {
   //console.log('result:'+que)
@@ -280,7 +288,7 @@ async function upstatus(que) {
 
 //获取权限表
 async function Getper() {	
-  let sql = "select * from  login  " 
+  let sql = "select * from  login" 
   console.log(sql)
   let dataList = await query( sql )
   var d1=JSON.parse(dataList)
@@ -295,7 +303,144 @@ async function getper() {
   
 }
 
+//更新权限表
+async function Upper(field) {	
+  let sql = "update login set permission='" + 
+			field.permission + "',user_name='" + 
+			field.user_name + "',password='" + 
+			field.password + "' where ID ='" + field.ID + "'"
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Getper:' + dataList )
+  return (d1)
+}
+async function upper(que) {
+	let dataList = await Upper(que)
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+}
+
+//查询权限表
+async function Selper(field) {	
+  let sql = "select * from login where 1=1"
+	if(field.ID){
+		sql =sql + ' and ID = "' +field.ID +  '" '
+		console.log(field.ID)
+	}
+	if(field.user_name){
+		sql =sql + ' and user_name = "' +field.user_name +  '" '
+		console.log(field.user_name)
+	}
+	if(field.permission){
+		sql =sql + ' and permission = "' +field.permission +  '" '
+		console.log(field.permission)
+	}	
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Getper:' + dataList )
+  return (d1)
+}
+async function selper(que) {
+	let dataList = await Selper(que)
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+}
+
+//更新个人信息
+async function Upmsg(field) {	
+console.log(field.name)
+  let sql = "update login set "
+	if(field.user_name){
+		sql =sql + 'user_name = "' + field.user_name +  '" '
+	}
+	if(field.name){
+		sql =sql + ',name = "' + field.name +  '" '
+	}
+	if(field.phone){
+		sql =sql + ', phone = "' +field.phone +  '" '
+	}
+	if(field.mailbox){
+		sql =sql + ', mailbox = "' +field.mailbox +  '" '
+	}	
+	if(field.date1){
+		sql =sql + ', date1 = "' +field.date1 +  '" '
+	}
+	if(field.resource){
+		sql =sql + ', resource = "' +field.resource +  '" '
+	}
+	if(field.descc){
+		sql =sql + ', descc = "' +field.descc +  '" '
+	}
+	sql = sql+' where ID = ' +field.id
+  console.log(sql)
+  let dataList = await query( sql )
+  var d1=JSON.parse(dataList)
+  console.log('Getper:' + dataList )
+  return (d1)
+}
+async function upmsg(que) {
+	let dataList = await Upmsg(que)
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+}
+
+//删除角色
+async function Delper(field) {	
+  let sql = "DELETE FROM login WHERE ID='" + field + "'" 
+  let sql2 = "select * FROM login" 
+  console.log(sql)
+  let dataList = await query( sql )
+  let dataList2 = await query( sql2 )
+  var d1=JSON.parse(dataList2)
+  console.log('Delper:' + dataList )
+  return (d1)
+}
+async function delper(que) {
+	let dataList = await Delper(que)
+	return (dataList)
+  //var a = JSON.parse(dataList)
+  //console.log('result:'+dataList)
+}
+
+//新增角色
+async function Addper(field) {
+ let sql0 = "select count(*) as count from login where user_name ='" + field.user_name + "'" 
+ let dataList0 = await query( sql0 )
+ var count = JSON.parse(dataList0)
+ console.log('dataList0:' + count[0].count )
+if(count[0].count>0){
+	
+	return 'exists'
+}else{
+  let sql = "INSERT INTO login (  user_name,password,permission) VALUES ('"  +
+  field.user_name + "','"+ field.password + "','" +field.permission + "' )"
+  let sql2 = "select * FROM login" 
+  console.log('sql:' + sql )
+  
+  let dataList = await query( sql )
+  let dataList2 = await query( sql2 )
+  console.log('Addper:' + dataList2 )
+  return dataList2
+}
+
+}
+async function addper(que) {
+  let dataList = await Addper(que)
+  //var a = JSON.parse(dataList)
+  return (dataList)
+}
+//get
 router
+  .get('/selper',async (ctx,next) => {
+  console.log(ctx.query);
+  ctx.body =await selper(ctx.query) 
+  //console.log(ctx.body);
+  })
   .get('/getper',async (ctx,next) => {
   console.log(ctx.query);
   ctx.body =await getper() 
@@ -331,7 +476,25 @@ router
   ctx.body =await getdone(ctx.query) 
   //console.log(ctx.body);
   }) 
+
+//post
 router
+  .post('/upmsg',async (ctx,next) => {
+  console.log(ctx.request.body)
+  ctx.body = await upmsg(ctx.request.body)
+})
+  .post('/addper',async (ctx,next) => {
+  console.log(ctx.request.body)
+  ctx.body = await addper(ctx.request.body)
+})
+  .post('/delper',async (ctx,next) => {
+  console.log(ctx.request.body.ID)
+  ctx.body = await delper(ctx.request.body.ID)
+})
+  .post('/upper',async (ctx,next) => {
+  console.log(ctx.request.body)
+  ctx.body = await upper(ctx.request.body)
+})
   .post('/uplist',async (ctx,next) => {
   console.log(ctx.request.body)
   ctx.body = await upList(ctx.request.body)
@@ -346,7 +509,7 @@ router
 })
   .post('/addques',async (ctx,next) => {
   //console.log(ctx.request.body[0])
-  console.log(JSON.stringify(ctx.request.body))
+  console.log('addques: '+JSON.stringify(ctx.request.body))
   ctx.body = await addques(ctx.request.body)
 })
   .post('/upstatus',async (ctx,next) => {
@@ -402,12 +565,15 @@ var storage = multer.diskStorage({
   },  
   //修改文件名称  
   filename: function (req, file, cb) {  
+  
+  
     var fileFormat = (file.originalname).split(".");  
-    cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]); 
-    let sql = "update msgform set imageUrl='public/uploads/" + file.originalname + "' where ID = 2"
+    //console.log(cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]))
+	cb(null,file.originalname); 
+    let sql = "update login set imageUrl='public/uploads/" + file.originalname  +"' where ID = '" + req.body.localid + "'" 
     console.log('sql:' + sql )
     let dataList =  query( sql )
-    //console.log('selectAllData:' + dataList )
+    console.log('file:' + dataList )
     return dataList  	
   }
 

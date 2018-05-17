@@ -35,7 +35,7 @@
 import axios from 'axios'
 import { isvalidUsername } from '@/utils/validate'
 export default {
-  name: 'login',
+  // name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
       console.log("isvalidUsername:" + value)
@@ -69,8 +69,6 @@ export default {
     if (localStorage.username !== undefined && localStorage.password !== undefined) {
       this.loginForm.username = localStorage.username
       this.loginForm.password = localStorage.password
-      console.log('name: ' + localStorage.username + ' psd: ' + localStorage.password)
-      console.log(this.loginForm.username + ' : ' + this.loginForm.password)
     }
   },
   methods: {
@@ -88,15 +86,23 @@ export default {
         .then(function(response) {
           self.loading = true
           console.log(response)
-          if (response.data == 200) {
-            self.$store.dispatch('Login', self.loginForm).then(() => {
-              self.loading = false
-              self.$router.push({ path: '/' })
+          if (response.data.ID) {
+            self.$router.push({ path: '/' })
+             console.log(response.data)
+             localStorage.userid = response.data.ID
+             localStorage.imageUrl = response.data.imageUrl
               localStorage.username = self.loginForm.username
               localStorage.password = self.loginForm.password
-            }).catch(() => {
-              self.loading = false
-            })
+              console.log(localStorage)
+            // self.$store.dispatch('Login', self.loginForm).then(() => {
+            //   self.loading = false
+            //   self.$router.push({ path: '/' })
+            //   localStorage.username = self.loginForm.username
+            //   localStorage.password = self.loginForm.password
+            // }).catch(() => {
+            //   self.loading = false
+            // })
+            self.loading = false
           } else {
             console.log('error submit!!')
             alert('账号或密码错误')
