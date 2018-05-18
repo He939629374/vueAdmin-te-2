@@ -102,7 +102,7 @@
         fetchData(url) {
         this.listLoading = true
         var self = this
-        axios.get(url  + '?author=' + localStorage.username)
+        axios.get(url  + '?author=' + sessionStorage.username)
             .then(function(response) {
             self.tableData = response.data
             console.log(self.tableData)

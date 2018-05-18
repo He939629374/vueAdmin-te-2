@@ -13,7 +13,7 @@
         <span class="svg-container">
           <svg-icon icon-class="password"></svg-icon>
         </span>
-        <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+        <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" 
           placeholder="密码"></el-input>
           <span class="show-pwd" @click="showPwd"><svg-icon icon-class="eye" /></span>
       </el-form-item>
@@ -24,7 +24,7 @@
       </el-form-item>
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
-        <span> password: admin</span>
+        <span> password: admin1</span>
       </div>
     </el-form>
   </div>
@@ -55,7 +55,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: 'admin'
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -66,9 +66,10 @@ export default {
     }
   },
   created() {
-    if (localStorage.username !== undefined && localStorage.password !== undefined) {
-      this.loginForm.username = localStorage.username
-      this.loginForm.password = localStorage.password
+    console.log(sessionStorage)
+    if (sessionStorage.username !== undefined && sessionStorage.password !== undefined) {
+      this.loginForm.username = sessionStorage.username
+      this.loginForm.password = sessionStorage.password
     }
   },
   methods: {
@@ -89,16 +90,16 @@ export default {
           if (response.data.ID) {
             self.$router.push({ path: '/' })
              console.log(response.data)
-             localStorage.userid = response.data.ID
-             localStorage.imageUrl = response.data.imageUrl
-              localStorage.username = self.loginForm.username
-              localStorage.password = self.loginForm.password
-              console.log(localStorage)
+             sessionStorage.userid = response.data.ID
+             sessionStorage.imageUrl = response.data.imageUrl
+              sessionStorage.username = self.loginForm.username
+              sessionStorage.password = self.loginForm.password
+              console.log(sessionStorage)
             // self.$store.dispatch('Login', self.loginForm).then(() => {
             //   self.loading = false
             //   self.$router.push({ path: '/' })
-            //   localStorage.username = self.loginForm.username
-            //   localStorage.password = self.loginForm.password
+            //   sessionStorage.username = self.loginForm.username
+            //   sessionStorage.password = self.loginForm.password
             // }).catch(() => {
             //   self.loading = false
             // })

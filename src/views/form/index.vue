@@ -102,14 +102,14 @@ import axios from 'axios'
     },
     created() {
       var  self =this
-      this.localid = {localid:localStorage.userid}
+      this.localid = {localid:sessionStorage.userid}
       this.fetchData()
 
     },
     methods: {
     fetchData() {
       var self = this
-      axios.get('http://127.0.0.1:3000/selper' + '?ID=' + localStorage.userid)
+      axios.get('http://127.0.0.1:3000/selper' + '?ID=' + sessionStorage.userid)
         .then(function(response) {
           console.log(response.data)
           self.form = response.data[0]
@@ -127,9 +127,9 @@ import axios from 'axios'
           reader.readAsDataURL(file.raw)
           reader.onload = function(evt) {
           self.form.imageUrl = reader.result
-          localStorage.imageUrl = ('public/uploads/'+file.name)
-          self.$root.$emit('imageUrl', localStorage.imageUrl);
-         console.log(localStorage)
+          sessionStorage.imageUrl = ('public/uploads/'+file.name)
+          self.$root.$emit('imageUrl', sessionStorage.imageUrl);
+         console.log(sessionStorage)
         }
       },
       beforeAvatarUpload(file) {
@@ -156,9 +156,9 @@ import axios from 'axios'
             date1: da_te,
             resource: self.form.resource,
             descc: self.form.descc,
-            id:localStorage.userid
+            id:sessionStorage.userid
           })).then(function(response) {     
-            localStorage.username =  self.form.user_name
+            sessionStorage.username =  self.form.user_name
             self.$notify({
               title: '成功',
               message: '修改成功',

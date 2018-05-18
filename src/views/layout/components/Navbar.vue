@@ -34,10 +34,10 @@ export default {
       }
     },
     updated: function () {
-      this.imageUrl =require('../../../../koa2-test/'+localStorage.imageUrl)
+      this.imageUrl =require('../../../../koa2-test/'+sessionStorage.imageUrl)
     },
     created() {
-      this.imageUrl =require('../../../../koa2-test/'+localStorage.imageUrl)
+      this.imageUrl =require('../../../../koa2-test/'+sessionStorage.imageUrl)
       this.$root.$on('imageUrl', (a)=>{
         this.imageUrl=a;
       });  

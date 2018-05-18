@@ -237,6 +237,7 @@ selectedOptions2: [],
     }
   },
   created() {
+    console.log("2")
     this.fetchData()
   },
   components: { myQ, myQ2 },
@@ -255,7 +256,13 @@ selectedOptions2: [],
         .then(function(response) {
           self.alllist=[]
           self.listLoading = false
-          self.$router.go(0);
+          //self.$router.go(0);
+          self.$router.push({
+            path:'/example/table',
+            query: {
+              t: +new Date() //保证每次点击路由的query项都是不一样的，确保会重新刷新view
+            }
+          })
           self.dialogMyqVisible = false
       // self.$router.push({
       // path:self.$route.fullPath, // 获取当前连接，重新跳转

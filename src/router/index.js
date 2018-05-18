@@ -80,13 +80,14 @@ export const constantRouterMap = [
 
   {
     path: '/form',
+    redirect: '/form/index',
     component: Layout,
     children: [
       {
         path: 'index',
         name: 'Form',
         component: () => import('@/views/form/index'),
-        meta: { title: '个人中心', icon: 'form',role: ['admin','super_editor'] }
+        meta: { title: '个人中心', icon: 'form'}
       }
     ]
   },
@@ -99,18 +100,18 @@ export default new Router({
 //  scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
-export const asyncRouterMap = [
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: '个人中心', icon: 'form',role: ['admin','super_editor'] }
-      }
-    ]
-  },
-  { path: '*', redirect: '/404', hidden: true }
-];
+// export const asyncRouterMap = [
+//   {
+//     path: '/form',
+//     component: Layout,
+//     children: [
+//       {
+//         path: 'index',
+//         name: 'Form',
+//         component: () => import('@/views/form/index'),
+//         meta: { title: '个人中心', icon: 'form',role: ['admin','super_editor'] }
+//       }
+//     ]
+//   },
+//   { path: '*', redirect: '/404', hidden: true }
+// ];

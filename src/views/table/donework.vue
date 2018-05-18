@@ -125,7 +125,7 @@ export default {
     }
   },
   created() {
-    console.log(localStorage.username)
+    console.log(sessionStorage.username)
     this.fetchData()
   },
   components: { myQ },
@@ -133,7 +133,7 @@ export default {
     fetchData() {
       this.listLoading = true
       var self = this
-      axios.get('http://127.0.0.1:3000/getdone' + '?exauthor=' + localStorage.username)
+      axios.get('http://127.0.0.1:3000/getdone' + '?exauthor=' + sessionStorage.username)
         .then(function(response) {
           console.log(response.data.length)
           self.total = response.data.length
