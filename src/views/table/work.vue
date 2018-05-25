@@ -1,153 +1,275 @@
 <template>
-  <div class="app-container " v-loading.body="listLoading">
-    <div class="filter-container" style="padding-bottom:10px">
-    <el-cascader
-        expand-trigger="hover"
-        :options="options"
-        v-model="selectedOptions2">
-    </el-cascader>
-      <el-button class="filter-item" type="primary"  icon="el-icon-search" @click="handleCreate">新增</el-button>
-      <el-button v-if="status" class="filter-item" type="success"  icon="el-icon-upload" @click="handleSave">提交</el-button>
-      <el-button v-else class="filter-item" type="success"  icon="el-icon-circle-ceck-outline" @click="handleSave">保存</el-button>
-      <myQ ref="Q1" :list="listQuery2" :lis="liswork" :checkQuery="checkwork" :AskQuery="Askwork" :isdel='iswork'>
-
-      </myQ>
-    </div>
-    </div>
+<div class="app-container ">
+  <div :class="className" :id="id" style="height:600px;"></div>
+</div>
 </template>
 
 <script>
-  import axios from 'axios'
-  import myQ from '@/components/Options.vue'
-  export default {
-    data() {
-      return {
-        iswork:'',
-        alllist:[],
-        listLoading: false,
-        selectedOptions2: [],
-        options: [{
-          value: '单选',
-          label: '单选',
-          children: [{
-            value: '是否',
-            label: '是否'
-          }, {
-            value: '星级',
-            label: '星级'
-          }]
-        }, {
-          value: '多选',
-          label: '多选'
-        }, {
-          value: '填空',
-          label: '填空'
-        }, {
-          value: '上传',
-          label: '上传'
-        }],
-        listQuery2: [
-          {
-            selfid: 0,
-            type: '0',
-            title: '标题',
-            radio: '',
-            edit: true, ceck:['']
-          }
-        ],
-        liswork: [
-          {
-            selfid: 0,
-            type: '1',
-            title: '标题',
-            edit: true,
-            radio: '', ceck:['']
-          }
-        ],
-        checkwork: [
-          {
-            selfid: 0,
-            type: '2',
-            radio: ['北京'],
-            title: '标题',
-            ceck: ['上海', '北京', '广州', '深圳'],
-            edit: true
-          }
-        ],
-        Askwork: [
-          {
-            selfid: 0,
-            type: '3',
-            title: '标题',
-            radio: '',
-            edit: true, ceck:['']
-          }
-        ]
-      }
+import echarts from 'echarts'
+import resize from './mixins/resize'
+
+export default {
+  mixins: [resize],
+  props: {
+    className: {
+      type: String,
+      default: 'chart'
     },
-    props:['qindex','status'],
-    components: { myQ },
-    created(){
+    id: {
+      type: String,
+      default: 'chart'
     },
-    methods: {
-      Pushlist() {
-        var self = this
-        for(var i=0; i<arguments.length; i++){
-          var b = arguments[i]
-        let a = b.length
-        for(var j=0; j<a; j++){
-            self.alllist.push(b[j])
-        }   
-        }    
-      },
-      handleSave() {
-        //this.listLoading = true
-        var self = this
-        this.Pushlist(self.Askwork,self.checkwork,self.liswork,self.listQuery2)
-        console.log(this.qindex)
-        console.log(this.alllist)
-        var qs = require('qs') // 处理post内容格式
-        // axios.post('http://127.0.0.1:3000/addques', qs.stringify({
-        //   alllist:self.alllist,
-        //   qindex:self.qindex
-        // }))
-        // .then(function(response) {
-        //   self.alllist=[]
-        //   self.listLoading = false
-        //   self.$router.go(0);
-        // }).catch(function(error) {
-        //   console.log(error)
-        // })
-        this.dialogMyqVisible = true
-this.$router.push({
-path:this.$route.fullPath, // 获取当前连接，重新跳转
-query:{
-_time:new Date().getTime()/1000  // 时间戳，刷新当前router
-  }
-})
-      },
-      handleCreate() {
-        console.log(this.selectedOptions2)
-        if (this.selectedOptions2.length > 1) {
-          if (this.selectedOptions2[1] == '是否') {
-            this.listQuery2.push({ title: 'moren', radio: '', edit: true,type: '0', selfid: this.listQuery2.length+1, ceck:[''] })
-          } else {
-            this.liswork.push({ title: 'moren', radio: '', edit: true,type: '1', selfid:this.liswork.length+1, ceck:[''] })
-          }
-        } else if (this.selectedOptions2 == '多选') {
-          this.checkwork.push({ title: 'moren',  radio: ['上海'], edit: true, ceck: ['上海', '北京', '广州', '深圳'],type: '2', selfid:this.checkwork+1 })
-        } else if (this.selectedOptions2 == '填空') {
-          this.Askwork.push({ title: 'moren', radio: '', edit: true,type: '3', selfid:this.Askwork.length+1, ceck:[''] })
-        } else {
-          this.$message({
-            message: '新增类型未指定',
-            type: 'warning'
-          })
-        }
-      }
+    width: {
+      type: String,
+      default: '200px'
+    },
+    height: {
+      type: String,
+      default: '200px'
     }
+  },
+  data() {
+    return {
+      chart: null
+    }
+  },
+  mounted() {
+    this.initChart()
+  },
+  beforeDestroy() {
+    if (!this.chart) {
+      return
+    }
+    this.chart.dispose()
+    this.chart = null
+  },
+  methods: {
+    initChart() {
+      this.chart = echarts.init(document.getElementById(this.id))
+      const xData = (function() {
+        const data = []
+        for (let i = 1; i < 13; i++) {
+          data.push(i + 'month')
+        }
+        return data
+      }())
+      this.chart.setOption({
+        backgroundColor: '#344b58',
+        title: {
+          text: '统计',
+          x: '20',
+          top: '10',
+          textStyle: {
+            color: '#fff',
+            fontSize: '22'
+          },
+          subtextStyle: {
+            color: '#90979c',
+            fontSize: '16',
+            align:'right'
+          },
+          subtext:localStorage.username
+        },
+        tooltip: {
+          show:true,
+          trigger: 'axis',
+          axisPointer: {
+            textStyle: {
+              color: '#fff'
+            }
+          }
+        },
+        grid: {
+          show:true,
+          borderWidth: 3,
+          top: 110,
+          bottom: 95,
+          textStyle: {
+            color: '#fff'
+          }
+        },
+        legend: {
+          x: '5%',
+          top: '10%',
+          textStyle: {
+            color: '#90979c'
+          },
+          data: ['female', 'male', 'average']
+        },
+        calculable: false,
+        xAxis: [{
+          type: 'category',
+          axisLine: {
+            lineStyle: {
+              color: '#90979c'
+            }
+          },
+          splitLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          splitArea: {
+            show: false
+          },
+          axisLabel: {
+            interval: 0
+
+          },
+          data: xData
+        }],
+        yAxis: [{
+          type: 'value',
+          splitLine: {
+            show: false
+          },
+          axisLine: {
+            lineStyle: {
+              color: '#90979c'
+            }
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: {
+            interval: 0
+          },
+          splitArea: {
+            show: false
+          }
+        }],
+        dataZoom: [{
+          show: true,
+          height: 30,
+          xAxisIndex: [
+            0
+          ],
+          bottom: 30,
+          start: 10,
+          end: 80,
+          handleIcon: 'path://M306.1,413c0,2.2-1.8,4-4,4h-59.8c-2.2,0-4-1.8-4-4V200.8c0-2.2,1.8-4,4-4h59.8c2.2,0,4,1.8,4,4V413z',
+          handleSize: '110%',
+          handleStyle: {
+            color: '#d3dee5'
+
+          },
+          textStyle: {
+            color: '#fff' },
+          borderColor: '#90979c'
+
+        }, {
+          type: 'inside',
+          show: true,
+          height: 15,
+          start: 1,
+          end: 35
+        }],
+        series: [{
+          name: 'female',
+          type: 'bar',
+          stack: 'total',
+          barMaxWidth: 35,
+          barGap: '10%',
+          itemStyle: {
+            normal: {
+              color: 'rgba(255,144,128,1)',
+              label: {
+                show: true,
+                textStyle: {
+                  color: '#fff'
+                },
+                position: 'insideTop',
+                formatter(p) {
+                  return p.value > 0 ? p.value : ''
+                }
+              }
+            }
+          },
+          data: [
+            709,
+            1917,
+            2455,
+            2610,
+            1719,
+            1433,
+            1544,
+            3285,
+            5208,
+            3372,
+            2484,
+            4078
+          ]
+        },
+
+        {
+          name: 'male',
+          type: 'bar',
+          stack: 'total',
+          itemStyle: {
+            normal: {
+              color: 'rgba(0,191,183,1)',
+              barBorderRadius: 0,
+              label: {
+                show: true,
+                position: 'top',
+                formatter(p) {
+                  return p.value > 0 ? p.value : ''
+                }
+              }
+            }
+          },
+          data: [
+            327,
+            1776,
+            507,
+            1200,
+            800,
+            482,
+            204,
+            1390,
+            1001,
+            951,
+            381,
+            220
+          ]
+        }, {
+          name: 'average',
+          type: 'line',
+          stack: 'total',
+          symbolSize: 10,
+          symbol: 'circle',
+          itemStyle: {
+            normal: {
+              color: 'rgba(252,230,48,1)',
+              barBorderRadius: 0,
+              label: {
+                show: true,
+                position: 'top',
+                formatter(p) {
+                  return p.value > 0 ? p.value : ''
+                }
+              }
+            }
+          },
+          data: [
+            1036,
+            3693,
+            2962,
+            3810,
+            2519,
+            1915,
+            1748,
+            4675,
+            6209,
+            4323,
+            2865,
+            4298
+          ]
+        }
+        ]
+      })
+    }
+  }
 }
 </script>
-<style>
-
-</style>
